@@ -25,7 +25,7 @@ The easiest way to install is by using composer:
 
 ## Sample usage
 
-Lets assume you want to create a RESTfull API providing given endpoints:
+Lets assume you want to create a RESTfull API providing following endpoints:
 
 * `http://yourDomain/person` a collection supporting GET and POST methods
 * `http://yourDomain/person/{id}` resources supporting GET, PUT and DELETE methods
