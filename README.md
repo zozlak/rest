@@ -1,5 +1,8 @@
 # REST
 
+[![Build Status](https://travis-ci.org/zozlak/rest.svg?branch=master)](https://travis-ci.org/zozlak/rest)
+[![Coverage Status](https://coveralls.io/repos/github/zozlak/rest/badge.svg?branch=master)](https://coveralls.io/github/zozlak/rest?branch=master)
+
 Set of PHP classes for REST APIs creation:
 
 * `zozlak\rest\HTTPController` provides routing to the right endpoint class and handles errors
