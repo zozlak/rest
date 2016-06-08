@@ -73,26 +73,26 @@ namespace myRESTEndpoint;
 use \zozlak\rest\FormatterInterface;
 
 class Person extends \zozlak\rest\HTTPEndpoint {
-    public function getCollectio(FormatterInterface $f);
+    public function getCollectio(FormatterInterface $f){
         $f->data('you executed a GET acction on aperson collection');
     }
-    
-    public function postCollectio(FormatterInterface $f);
+
+    public function postCollectio(FormatterInterface $f){
         $f->data('you executed a POST acction on a person collection');
     }
-    
-    public function get(FormatterInterface $f);
+
+    public function get(FormatterInterface $f){
         $f->data('you executed a GET acction on a person resource with id' . $this->personId);
     }
-    
-    public function put(FormatterInterface $f);
+
+    public function put(FormatterInterface $f){
         $f->data('you executed a PUT acction on a person resource with id' . $this->personId);
     }
-    
-    public function delete(FormatterInterface $f);
+
+    public function delete(FormatterInterface $f){
         $f->data('you executed a DELETE acction on a person resource with id' . $this->personId);
     }
-    
+
 }
 ```
 
@@ -105,21 +105,21 @@ Just adapt the `src\Person.php`.
 ```
 <?php
 namespace myRESTEndpoint;
+use \zozlak\rest\HTTPContoller;
 
 try{
     header('Access-Control-Allow-Origin: *');
     require_once 'vendor/autoload.php';
     // you should probably use autoloader but to make it simpler we will explicitely include them
-    require_once 'src\Person.php';
-    require_once 'src\Project.php';
-    set_error_handler('\util\rest\HTTPContoller::errorHandler');
+    require_once 'src/Person.php';
+    require_once 'src/Project.php';
+    set_error_handler('\zozlak\rest\HTTPContoller::errorHandler');
     $controller = new HTTPContoller('myRESTEndpoint');
     $endpointPath = filter_input(INPUT_SERVER, 'REDIRECT_URL');
     $controller->handleRequest($endpointPath);
 }catch(\Throwable $e){
     HTTPContoller::HTTPCode($e->getMessage());
 }
-
 ```
 
 ### Test your API
