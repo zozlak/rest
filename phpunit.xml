@@ -1,0 +1,8 @@
+<phpunit colors="true" verbose="true">
+	<php>
+		<includePath>src</includePath>
+	</php>
+	<logging>
+		<log type="coverage-clover" target="build/logs/clover.xml"/>
+	</logging>
+</phpunit>

@@ -1,0 +1,23 @@
+{
+    "name": "zozlak/rest",
+    "type": "library",
+    "description": "REST controller and endpoint classes",
+    "keywords": ["REST"],
+    "homepage": "https://github.com/zozlak/rest",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mateusz Żółtak",
+            "email": "zozlak@zozlak.org",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "zozlak\\util\\rest": "src/"
+        }
+    }
+}
