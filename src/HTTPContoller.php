@@ -41,8 +41,8 @@ class HTTPContoller {
 TEMPL;
 
     static public function HTTPCode($msg = 'Internal Server Error', $code = 500) {
-        $msg = explode("\n", $msg);
-        header('HTTP/1.1 ' . $code . ' ' . trim($msg[0]));
+        $splitted = explode("\n", $msg);
+        header('HTTP/1.1 ' . $code . ' ' . trim($splitted[0]));
         printf(self::$errorTemplate, $code, $msg);
         
         if(self::$debug){
