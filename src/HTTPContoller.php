@@ -48,6 +48,7 @@ TEMPL;
         if(self::$debug){
             debug_print_backtrace();
         }
+        exit();
     }
 
     static public function unauthorized($msg = 'Unauthorized') {
