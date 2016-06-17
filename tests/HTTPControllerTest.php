@@ -26,7 +26,7 @@
 
 namespace tests;
 
-use zozlak\rest;
+use zozlak\rest\HTTPContoller;
 
 class ImportExportWorkflowTest extends \PHPUnit_Framework_TestCase {
 
