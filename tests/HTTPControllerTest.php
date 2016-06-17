@@ -26,7 +26,7 @@
 
 namespace tests;
 
-use namespace zozlak\rest;
+use zozlak\rest;
 
 class ImportExportWorkflowTest extends \PHPUnit_Framework_TestCase {
 
