@@ -24,9 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace zozlak\rest;
-require_once 'src/HTTPContoller.php';
-require_once 'src/HTTPEndpoint.php';
+namespace tests;
+
+use namespace zozlak\rest;
 
 class ImportExportWorkflowTest extends \PHPUnit_Framework_TestCase {
 
