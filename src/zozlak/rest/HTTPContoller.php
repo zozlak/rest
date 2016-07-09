@@ -86,7 +86,14 @@ TEMPL;
         $this->config = $config;
     }
 
-    public function getAccept(){
+    public function getConfig($name) {
+        if ($this->config === null) {
+            return null;
+        }
+        return $this->config->get($name);
+    }
+
+    public function getAccept() {
         return $this->accept;
     }
 

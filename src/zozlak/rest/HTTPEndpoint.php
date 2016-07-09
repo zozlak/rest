@@ -35,19 +35,30 @@ class HTTPEndpoint {
 
     static private $args;
 
+    static public function toUnderscore($name) {
+        $parts = preg_split('/[A-Z]/', $name);
+        $n = mb_strlen($parts[0]);
+        $res = $parts[0];
+        foreach ($parts as $k => $i) {
+            if ($k !== 0) {
+                $res .= '_' . strtolower(mb_substr($name, $n, 1)) . $i;
+                $n += mb_strlen($i) + 1;
+            }
+        }
+        return $res;
+    }
+
     /**
      *
      * @var type \zozlak\rest\HTTPContoller
      */
     protected $controller;
-    protected $config;
 
     public function __construct(\stdClass $path, HTTPContoller $controller) {
         $this->controller = $controller;
         foreach ($path as $key => $value) {
             $this->$key = $value;
         }
-        $this->config = $this->controller->config;
     }
 
     public function get(FormatterInterface $f) {
@@ -118,7 +129,7 @@ class HTTPEndpoint {
         throw new \BadMethodCallException('Method not implemented');
     }
 
-    public function filterInput($name) {
+    protected function filterInput($name) {
         $method = filter_input(\INPUT_SERVER, 'REQUEST_METHOD');
         if ($method === 'GET') {
             return filter_input(\INPUT_GET, $name);
@@ -135,17 +146,8 @@ class HTTPEndpoint {
         }
     }
 
-    public function toUnderscore($name) {
-        $parts = preg_split('/[A-Z]/', $name);
-        $n = mb_strlen($parts[0]);
-        $res = $parts[0];
-        foreach ($parts as $k => $i) {
-            if ($k !== 0) {
-                $res .= '_' . strtolower(mb_substr($name, $n, 1)) . $i;
-                $n += mb_strlen($i) + 1;
-            }
-        }
-        return $res;
+    protected function getConfig($name) {
+        return $this->controller->getConfig($name);
     }
 
 }
