@@ -79,7 +79,7 @@ class JSONFormatter implements FormatterInterface{
 		}
 		$this->bufferSize += 1;
 		$this->buffer .= $last;
-		$this->stack->pop();
+		array_pop($this->stack);
 		$this->state = $this->getStateFromStack();
 	}
 	
@@ -104,7 +104,7 @@ class JSONFormatter implements FormatterInterface{
 		}
 		$this->bufferSize += 1;
 		$this->buffer .= $last;
-		$this->stack->pop();
+		array_pop($this->stack);
 		$this->state = $this->getStateFromStack();
 	}
 	
