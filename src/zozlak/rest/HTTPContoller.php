@@ -34,7 +34,6 @@ namespace zozlak\rest;
 class HTTPContoller {
 
     static private $debug = false;
-    
     static private $errorTemplate = <<<TEMPL
 <h1>ERROR %d</h1>
 <p>%s</p>
@@ -44,8 +43,8 @@ TEMPL;
         $splitted = explode("\n", $msg);
         header('HTTP/1.1 ' . $code . ' ' . trim($splitted[0]));
         printf(self::$errorTemplate, $code, $msg);
-        
-        if(self::$debug){
+
+        if (self::$debug) {
             debug_print_backtrace();
         }
         exit();
@@ -71,19 +70,24 @@ TEMPL;
 
     /**
      *
-     * @var type \util\Config
+     * @var type \zozlak\util\Config
      */
     private $config;
 
     /**
      *
-     * @var \util\FormatterInterface
+     * @var \zozlak\rest\FormatterInterface
      */
     private $formatter;
+    private $accept = array();
 
     public function __construct($namespace = '', $config = null) {
         $this->namespace = '\\' . $namespace;
         $this->config = $config;
+    }
+
+    public function getAccept(){
+        return $this->accept;
     }
 
     public function handleRequest($path) {
@@ -103,7 +107,7 @@ TEMPL;
         }
 
         $handlerClass = $this->namespace . '\\' . mb_strtoupper(mb_substr($handlerClass, 0, 1)) . mb_substr($handlerClass, 1);
-        $handler = new $handlerClass($params, $this->config);
+        $handler = new $handlerClass($params, $this);
 
         $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD')) . (count($path) % 2 === 0 ? '' : 'Collection');
         try {
@@ -125,12 +129,12 @@ TEMPL;
         $accept = trim(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT'));
         if ($accept != '') {
             $tmp = explode(',', $accept);
-            $accept = array();
+            $this->accept = array();
             foreach ($tmp as $i) {
-                $accept[trim($i[0])] = count($i) > 1 ? floatval($i[1]) : 1;
+                $this->accept[trim($i[0])] = count($i) > 1 ? floatval($i[1]) : 1;
             }
-            arsort($accept);
-            foreach ($accept as $k => $v) {
+            arsort($this->accept);
+            foreach (array_keys($this->accept) as $k) {
                 switch ($k) {
                     default:
                         $this->formatter = new JSONFormatter();
