@@ -112,7 +112,7 @@ class JSONFormatter implements FormatterInterface{
 		$this->checkState($key);
 		$this->bufferSize += $this->appendComa();
 		$this->bufferSize += $this->appendKey($key);
-		$d = json_encode($d);
+		$d = json_encode($d, \JSON_NUMERIC_CHECK);
 		$this->buffer .= $d;
 		$this->bufferSize += mb_strlen($d);
 		$this->firstEl = false;
@@ -127,7 +127,7 @@ class JSONFormatter implements FormatterInterface{
     
 	public function data($d){
 		$this->echoContentType();
-		echo json_encode($d);
+		echo json_encode($d, \JSON_NUMERIC_CHECK);
 		$this->state = self::ENDED;
 	}
 	
