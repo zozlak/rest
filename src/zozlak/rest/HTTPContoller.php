@@ -39,13 +39,13 @@ class HTTPContoller {
 <p>%s</p>
 TEMPL;
 
-    static public function HTTPCode($msg = 'Internal Server Error', $code = 500) {
+    static public function HTTPCode($msg = 'Internal Server Error', $code = 500, $ex = null) {
         $splitted = explode("\n", $msg);
         header('HTTP/1.1 ' . $code . ' ' . trim($splitted[0]));
         printf(self::$errorTemplate, $code, $msg);
 
-        if (self::$debug) {
-            debug_print_backtrace();
+        if (self::$debug && $ex) {
+            print_r($ex->getTrace());
         }
         exit();
     }
