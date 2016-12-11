@@ -127,7 +127,7 @@ TEMPL;
         } catch (\Exception $e) {
             $code = $e->getCode();
             $code = $code >= 400 && $code <= 418 || $code == 451 || $code >= 500 && $code <= 511 ? $code : 500;
-            self::HTTPCode($e->getMessage(), $code);
+            self::HTTPCode($e->getMessage(), $code, $e);
         }
     }
 
