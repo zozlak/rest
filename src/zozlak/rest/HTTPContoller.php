@@ -26,6 +26,8 @@
 
 namespace zozlak\rest;
 
+use Exception;
+
 /**
  * Description of HTTPContoller
  *
@@ -59,7 +61,7 @@ TEMPL;
         if (self::$debug) {
             $message = sprintf('%s %s', $severity, $msg);
         }
-        self::HTTPCode($message, 500);
+        self::HTTPCode($message, 500, new Exception());
     }
 
     static public function setDebug($v) {
