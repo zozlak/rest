@@ -26,7 +26,7 @@
 
 namespace tests;
 
-use zozlak\rest\HTTPContoller;
+use zozlak\rest\HTTPController;
 
 class ImportExportWorkflowTest extends \PHPUnit_Framework_TestCase {
 
@@ -34,7 +34,7 @@ class ImportExportWorkflowTest extends \PHPUnit_Framework_TestCase {
      * this test makes no sense :(
      */
     public function testCreation(){
-        $c = new HTTPContoller();
+        $c = new HTTPController();
         $this->assertObjectHasAttribute('namespace', $c);
     }
 }

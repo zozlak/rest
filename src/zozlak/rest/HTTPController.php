@@ -29,11 +29,11 @@ namespace zozlak\rest;
 use Exception;
 
 /**
- * Description of HTTPContoller
+ * Description of HTTPController
  *
  * @author zozlak
  */
-class HTTPContoller {
+class HTTPController {
 
     static private $debug = false;
     static private $errorTemplate = <<<TEMPL
@@ -140,7 +140,13 @@ TEMPL;
             $tmp = explode(',', $accept);
             $this->accept = array();
             foreach ($tmp as $i) {
-                $this->accept[trim($i[0])] = count($i) > 1 ? floatval($i[1]) : 1;
+                $i = explode(';', $i);
+                $i[0] = trim($i[0]);
+                if (count($i) >= 2) {
+                    $this->accept[$i[0]] = floatval(preg_replace('|[^.0-9]|', '', $i[1]));
+                } else{
+                    $this->accept[$i[0]] = 1;
+                }
             }
             arsort($this->accept);
             foreach (array_keys($this->accept) as $k) {

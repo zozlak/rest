@@ -108,7 +108,7 @@ Just adapt the `src\Person.php`.
 ```
 <?php
 namespace myRESTEndpoint;
-use \zozlak\rest\HTTPContoller;
+use \zozlak\rest\HTTPController;
 
 try{
     header('Access-Control-Allow-Origin: *');
@@ -116,12 +116,12 @@ try{
     // you should probably use autoloader but to make it simpler we will explicitely include them
     require_once 'src/Person.php';
     require_once 'src/Project.php';
-    set_error_handler('\zozlak\rest\HTTPContoller::errorHandler');
-    $controller = new HTTPContoller('myRESTEndpoint');
+    set_error_handler('\zozlak\rest\HTTPController::errorHandler');
+    $controller = new HTTPController('myRESTEndpoint');
     $endpointPath = filter_input(INPUT_SERVER, 'REDIRECT_URL');
     $controller->handleRequest($endpointPath);
 }catch(\Throwable $e){
-    HTTPContoller::HTTPCode($e->getMessage());
+    HTTPController::HTTPCode($e->getMessage());
 }
 ```
 

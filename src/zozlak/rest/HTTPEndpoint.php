@@ -50,11 +50,11 @@ class HTTPEndpoint {
 
     /**
      *
-     * @var type \zozlak\rest\HTTPContoller
+     * @var type \zozlak\rest\HTTPController
      */
     protected $controller;
 
-    public function __construct(\stdClass $path, HTTPContoller $controller) {
+    public function __construct(\stdClass $path, HTTPController $controller) {
         $this->controller = $controller;
         foreach ($path as $key => $value) {
             $this->$key = $value;
