@@ -37,15 +37,27 @@ class HTTPEndpoint {
 
     static public function toUnderscore($name) {
         $parts = preg_split('/[A-Z]/', $name);
-        $n = mb_strlen($parts[0]);
-        $res = $parts[0];
+        $n     = mb_strlen($parts[0]);
+        $res   = $parts[0];
         foreach ($parts as $k => $i) {
             if ($k !== 0) {
                 $res .= '_' . strtolower(mb_substr($name, $n, 1)) . $i;
-                $n += mb_strlen($i) + 1;
+                $n   += mb_strlen($i) + 1;
             }
         }
         return $res;
+    }
+
+    static private function parseInput() {
+        $type = strtolower(filter_input(\INPUT_SERVER, 'CONTENT_TYPE'));
+        $data = file_get_contents("php://input");
+        switch ($type) {
+            case 'application/json':
+                self::$args = json_decode($data);
+                break;
+            default:
+                parse_str($data, self::$args);
+        }
     }
 
     /**
@@ -137,7 +149,7 @@ class HTTPEndpoint {
             return filter_input(\INPUT_POST, $name);
         } else {
             if (self::$args === null) {
-                parse_str(file_get_contents("php://input"), self::$args);
+                self::parseInput();
             }
             if (!array_key_exists($name, self::$args)) {
                 return null;
