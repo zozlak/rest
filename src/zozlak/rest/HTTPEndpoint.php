@@ -53,7 +53,7 @@ class HTTPEndpoint {
         $data = file_get_contents("php://input");
         switch ($type) {
             case 'application/json':
-                self::$args = json_decode($data);
+                self::$args = (array)json_decode($data);
                 break;
             default:
                 parse_str($data, self::$args);
