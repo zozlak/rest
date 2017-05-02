@@ -143,9 +143,9 @@ class HTTPEndpoint {
 
     protected function filterInput($name) {
         $method = filter_input(\INPUT_SERVER, 'REQUEST_METHOD');
-        if ($method === 'GET') {
+        if ($method === 'GET' && count($_GET) > 0) {
             return filter_input(\INPUT_GET, $name);
-        } else if ($method === 'POST') {
+        } else if ($method === 'POST' && count($_POST) > 0) {
             return filter_input(\INPUT_POST, $name);
         } else {
             if (self::$args === null) {
