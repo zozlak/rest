@@ -28,7 +28,7 @@ namespace tests;
 
 use zozlak\rest\HTTPController;
 
-class ImportExportWorkflowTest extends \PHPUnit_Framework_TestCase {
+class ImportExportWorkflowTest extends \PHPUnit\Framework\TestCase {
 
     /*
      * this test makes no sense :(
