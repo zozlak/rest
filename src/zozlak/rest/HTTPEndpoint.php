@@ -53,7 +53,7 @@ class HTTPEndpoint {
         $data = file_get_contents("php://input");
         switch ($type) {
             case 'application/json':
-                self::$args = (array)json_decode($data);
+                self::$args = (array) json_decode($data);
                 break;
             default:
                 parse_str($data, self::$args);
@@ -98,7 +98,7 @@ class HTTPEndpoint {
     }
 
     public function options(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+        $this->optionsGeneric(array('get', 'head', 'patch', 'post', 'put', 'trace'));
     }
 
     public function connect(FormatterInterface $f) {
@@ -130,7 +130,8 @@ class HTTPEndpoint {
     }
 
     public function optionsCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+        $this->optionsGeneric(array('getCollection', 'patchCollection', 'postCollection',
+            'putCollection', 'traceCollection'));
     }
 
     public function connectCollection(FormatterInterface $f) {
@@ -160,6 +161,29 @@ class HTTPEndpoint {
 
     protected function getConfig($name) {
         return $this->controller->getConfig($name);
+    }
+
+    private function optionsGeneric($methods) {
+        $implemented = array('OPTIONS');
+        foreach ($methods as $method) {
+            if ($this->checkOverride($method)) {
+                $implemented[] = strtoupper(str_replace('Collection', '', $method));
+            }
+        }
+        $implemented = implode(', ', $implemented);
+        header('Allow: ' . $implemented);
+        header('Access-Control-Allow-Methods: ' . $implemented);
+    }
+
+    private function checkOverride($method) {
+        $reflection = new \ReflectionMethod(get_class($this), $method);
+        try {
+            $reflection->getPrototype();
+            return true;
+        } catch (\ReflectionException $e) {
+            
+        }
+        return false;
     }
 
 }
