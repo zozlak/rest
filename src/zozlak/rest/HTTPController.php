@@ -49,7 +49,7 @@ TEMPL;
         if (self::$debug && $ex) {
             print_r($ex->getTrace());
         }
-        exit();
+        throw new \RuntimeException($msg, $code);
     }
 
     static public function unauthorized($msg = 'Unauthorized') {
@@ -122,18 +122,14 @@ TEMPL;
         try {
             $handler->$handlerMethod($this->formatter);
             $this->formatter->end();
-            return 200;
         } catch (\BadMethodCallException $e) {
             self::HTTPCode($e->getMessage(), 501);
-            return 501;
         } catch (UnauthorizedException $e) {
             self::HTTPCode($e->getMessage(), 401);
-            return 401;
         } catch (\Exception $e) {
             $code = $e->getCode();
             $code = $code >= 400 && $code <= 418 || $code == 451 || $code >= 500 && $code <= 511 ? $code : 500;
             self::HTTPCode($e->getMessage(), $code, $e);
-            return $code;
         }
     }
 
