@@ -49,7 +49,7 @@ TEMPL;
         if (self::$debug && $ex) {
             print_r($ex->getTrace());
         }
-        throw new \RuntimeException($msg, $code);
+        throw new HTTPRequestException($msg, $code);
     }
 
     static public function unauthorized($msg = 'Unauthorized') {
