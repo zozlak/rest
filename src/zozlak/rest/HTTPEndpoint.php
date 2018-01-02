@@ -26,6 +26,8 @@
 
 namespace zozlak\rest;
 
+use stdClass;
+
 /**
  * Description of Endpoint
  *
@@ -33,9 +35,18 @@ namespace zozlak\rest;
  */
 class HTTPEndpoint {
 
+    /**
+     *
+     * @var \stdClass
+     */
     static private $args;
 
-    static public function toUnderscore($name) {
+    /**
+     * 
+     * @param string $name
+     * @return string
+     */
+    static public function toUnderscore(string $name): string {
         $parts = preg_split('/[A-Z]/', $name);
         $n     = mb_strlen($parts[0]);
         $res   = $parts[0];
@@ -48,6 +59,9 @@ class HTTPEndpoint {
         return $res;
     }
 
+    /**
+     * 
+     */
     static private function parseInput() {
         $type = strtolower(filter_input(\INPUT_SERVER, 'CONTENT_TYPE'));
         $data = file_get_contents("php://input");
@@ -66,83 +80,176 @@ class HTTPEndpoint {
      */
     protected $controller;
 
-    public function __construct(\stdClass $path, HTTPController $controller) {
+    /**
+     * 
+     * @param \stdClass $path
+     * @param \zozlak\rest\HTTPController $controller
+     */
+    public function __construct(stdClass $path, HTTPController $controller) {
         $this->controller = $controller;
         foreach ($path as $key => $value) {
             $this->$key = $value;
         }
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function get(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function head(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function post(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function put(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function delete(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function trace(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     */
     public function options(FormatterInterface $f) {
         $this->optionsGeneric(array('get', 'head', 'patch', 'post', 'put', 'trace'));
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function connect(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function patch(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function getCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function postCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function putCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function deleteCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function traceCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     */
     public function optionsCollection(FormatterInterface $f) {
         $this->optionsGeneric(array('getCollection', 'patchCollection', 'postCollection',
             'putCollection', 'traceCollection'));
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function connectCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
+    /**
+     * 
+     * @param \zozlak\rest\FormatterInterface $f
+     * @throws \BadMethodCallException
+     */
     public function patchCollection(FormatterInterface $f) {
         throw new \BadMethodCallException('Method not implemented');
     }
 
-    protected function filterInput($name) {
+    /**
+     * 
+     * @param string $name
+     * @return mixed
+     */
+    protected function filterInput(string $name) {
         $method = filter_input(\INPUT_SERVER, 'REQUEST_METHOD');
         if ($method === 'GET' && count($_GET) > 0) {
             return filter_input(\INPUT_GET, $name);
@@ -159,11 +266,20 @@ class HTTPEndpoint {
         }
     }
 
-    protected function getConfig($name) {
+    /**
+     * 
+     * @param string $name
+     * @return mixed
+     */
+    protected function getConfig(string $name) {
         return $this->controller->getConfig($name);
     }
 
-    private function optionsGeneric($methods) {
+    /**
+     * 
+     * @param array $methods
+     */
+    private function optionsGeneric(array $methods) {
         $implemented = array('OPTIONS');
         foreach ($methods as $method) {
             if ($this->checkOverride($method)) {
@@ -175,7 +291,12 @@ class HTTPEndpoint {
         header('Access-Control-Allow-Methods: ' . $implemented);
     }
 
-    private function checkOverride($method) {
+    /**
+     * 
+     * @param string $method
+     * @return boolean
+     */
+    private function checkOverride(string $method): bool {
         $reflection = new \ReflectionMethod(get_class($this), $method);
         try {
             $reflection->getPrototype();

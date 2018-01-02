@@ -26,6 +26,9 @@
 
 namespace zozlak\rest;
 
+use RuntimeException;
+use Throwable;
+
 /**
  * Description of ForbiddenException
  *
@@ -33,8 +36,14 @@ namespace zozlak\rest;
  */
 class ForbiddenException extends RuntimeException {
 
-    public function __construct($message = "Forbidden", $code = 403,
-                                $previous = null) {
+    /**
+     * 
+     * @param string $message
+     * @param int $code
+     * @param Throwable $previous
+     */
+    public function __construct(string $message = "Forbidden", int $code = 403,
+                                Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

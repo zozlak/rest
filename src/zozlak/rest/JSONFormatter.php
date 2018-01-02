@@ -31,163 +31,260 @@ namespace zozlak\rest;
  *
  * @author zozlak
  */
-class JSONFormatter implements FormatterInterface{
-	const INVALID = 1;
-	const OBJECT = 2;
-	const COLLECTION = 3;
-	const ENDED = 4;
-	
-	private $buffer = '';
-	private $bufferSize = 0;
-	private $bufferSizeLimit;
-	private $state = self::INVALID;
-	private $firstEl = true;
-	private $headerSend = false;
-	private $stack = array();
-	
-	public function __construct($bufferSize = 10000000) {
-		$this->bufferSizeLimit = $bufferSize;
-	}
-	
-	public function end() {
-		if(!$this->headerSend && (strlen($this->buffer) > 0 || count($this->stack) > 0)){
-			$this->echoContentType();
-		}
-		echo $this->buffer;
-		echo implode('', $this->stack);
-		$this->state = self::ENDED;
-	}
-	
-	public function initCollection($key = null){
-		$this->checkState($key);
-		$this->bufferSize += 1;
-		$this->bufferSize += $this->appendComa();
-		$this->bufferSize += $this->appendKey($key);
-		$this->buffer .= '[';
-		$this->stack[] = ']';
-		$this->state = self::COLLECTION;
-		$this->firstEl = true;
-	}
-	
-	public function closeCollection(){
-		if(count($this->stack) === 0){
-			throw new \RuntimeException('can not close object - not in object');			
-		}
-		$last = $this->stack[count($this->stack) - 1];
-		if($last !== ']'){
-			throw new \RuntimeException('can not close object - not in object');
-		}
-		$this->bufferSize += 1;
-		$this->buffer .= $last;
-		array_pop($this->stack);
-		$this->state = $this->getStateFromStack();
-	}
-	
-	public function initObject($key = null){
-		$this->checkState($key);
-		$this->bufferSize += 1;
-		$this->bufferSize += $this->appendComa();
-		$this->bufferSize += $this->appendKey($key);
-		$this->buffer .= '{';
-		$this->stack[] = '}';
-		$this->state = self::OBJECT;
-		$this->firstEl = true;
-	}
-	
-	public function closeObject(){
-		if(count($this->stack) === 0){
-			throw new \RuntimeException('can not close object - not in object');			
-		}
-		$last = $this->stack[count($this->stack) - 1];
-		if($last !== '}'){
-			throw new \RuntimeException('can not close object - not in object');
-		}
-		$this->bufferSize += 1;
-		$this->buffer .= $last;
-		array_pop($this->stack);
-		$this->state = $this->getStateFromStack();
-	}
-	
-	public function append($d, $key = null){
-		$this->checkState($key);
-		$this->bufferSize += $this->appendComa();
-		$this->bufferSize += $this->appendKey($key);
-		$d = json_encode($d, \JSON_NUMERIC_CHECK);
-		$this->buffer .= $d;
-		$this->bufferSize += mb_strlen($d);
-		$this->firstEl = false;
-		$this->checkBufferSize();
-	}
-	
-    public function rawData($d){
-		$this->headerSend = true;
-        echo($d);
-		$this->state = self::ENDED;
-    }
-    
-	public function data($d){
-		$this->echoContentType();
-		echo json_encode($d, \JSON_NUMERIC_CHECK);
-		$this->state = self::ENDED;
-	}
-	
-	private function echoContentType(){
-		$this->headerSend = true;
-		header('Content-Type: application/json; charset=utf-8');
-	}
+class JSONFormatter implements FormatterInterface {
 
-	private function checkBufferSize(){
-		if($this->bufferSize > $this->bufferSizeLimit){
-			if(!$this->headerSend){
-				$this->echoContentType();
-			}
-			echo $this->buffer;
-			$this->buffer = '';
-			$this->bufferSize = 0;
-		}
-	}
-	
-	private function appendComa(){
-		if(!$this->firstEl){
-			$this->buffer .= ',';
-			return 1;
-		}
-		return 0;
-	}
-	
-	private function appendKey($key){
-		if($key != ''){
-			$key = sprintf('"%s":', str_replace('"', '\\"', $key));
-			$this->buffer .= $key;
-			return mb_strlen($key);
-		}
-		return 0;
-	}
-	
-	private function checkState($key){
-		if($this->state === self::ENDED){
-			throw new \RuntimeException('no more data can be send');
-		}
-		if($key != '' && $this->state !== self::OBJECT){
-			throw new \RuntimeException('key allowed only within an object');
-		}
-		if($key == '' && $this->state === self::OBJECT){
-			throw new \RuntimeException('key is required within an object');
-		}
-	}
-	
-	private function getStateFromStack(){
-		if(count($this->stack) === 0){
-			return $this->bufferSize > 0 || $this->headerSend ? self::ENDED : self::INVALID;
-		}
-		$last = $this->stack[count($this->stack) - 1];
-		switch($last){
-			case '}':
-				return self::OBJECT;
-			case ']':
-				return self::COLLECTION;
-			default:
-				throw new \RuntimeException('unknown item on the stack');
-		}
-	}
+    const INVALID    = 1;
+    const OBJECT     = 2;
+    const COLLECTION = 3;
+    const ENDED      = 4;
+
+    /**
+     *
+     * @var string
+     */
+    private $buffer     = '';
+
+    /**
+     *
+     * @var int
+     */
+    private $bufferSize = 0;
+
+    /**
+     *
+     * @var int
+     */
+    private $bufferSizeLimit;
+
+    /**
+     *
+     * @var int
+     */
+    private $state      = self::INVALID;
+
+    /**
+     *
+     * @var bool
+     */
+    private $firstEl    = true;
+
+    /**
+     *
+     * @var bool
+     */
+    private $headerSend = false;
+
+    /**
+     *
+     * @var array
+     */
+    private $stack      = array();
+
+    /**
+     * 
+     * @param int $bufferSize
+     */
+    public function __construct(int $bufferSize = 10000000) {
+        $this->bufferSizeLimit = $bufferSize;
+    }
+
+    /**
+     * 
+     */
+    public function end() {
+        if (!$this->headerSend && (strlen($this->buffer) > 0 || count($this->stack) > 0)) {
+            $this->echoContentType();
+        }
+        echo $this->buffer;
+        echo implode('', $this->stack);
+        $this->state = self::ENDED;
+    }
+
+    /**
+     * 
+     * @param string $key
+     */
+    public function initCollection(string $key = null) {
+        $this->checkState($key);
+        $this->bufferSize += 1;
+        $this->bufferSize += $this->appendComa();
+        $this->bufferSize += $this->appendKey($key);
+        $this->buffer     .= '[';
+        $this->stack[]    = ']';
+        $this->state      = self::COLLECTION;
+        $this->firstEl    = true;
+    }
+
+    /**
+     * 
+     * @throws \RuntimeException
+     */
+    public function closeCollection() {
+        if (count($this->stack) === 0) {
+            throw new \RuntimeException('can not close object - not in object');
+        }
+        $last = $this->stack[count($this->stack) - 1];
+        if ($last !== ']') {
+            throw new \RuntimeException('can not close object - not in object');
+        }
+        $this->bufferSize += 1;
+        $this->buffer     .= $last;
+        array_pop($this->stack);
+        $this->state      = $this->getStateFromStack();
+    }
+
+    /**
+     * 
+     * @param string $key
+     */
+    public function initObject(string $key = null) {
+        $this->checkState($key);
+        $this->bufferSize += 1;
+        $this->bufferSize += $this->appendComa();
+        $this->bufferSize += $this->appendKey($key);
+        $this->buffer     .= '{';
+        $this->stack[]    = '}';
+        $this->state      = self::OBJECT;
+        $this->firstEl    = true;
+    }
+
+    /**
+     * 
+     * @throws \RuntimeException
+     */
+    public function closeObject() {
+        if (count($this->stack) === 0) {
+            throw new \RuntimeException('can not close object - not in object');
+        }
+        $last = $this->stack[count($this->stack) - 1];
+        if ($last !== '}') {
+            throw new \RuntimeException('can not close object - not in object');
+        }
+        $this->bufferSize += 1;
+        $this->buffer     .= $last;
+        array_pop($this->stack);
+        $this->state      = $this->getStateFromStack();
+    }
+
+    /**
+     * 
+     * @param type $d
+     * @param string $key
+     */
+    public function append($d, string $key = null) {
+        $this->checkState($key);
+        $this->bufferSize += $this->appendComa();
+        $this->bufferSize += $this->appendKey($key);
+        $d                = json_encode($d, \JSON_NUMERIC_CHECK);
+        $this->buffer     .= $d;
+        $this->bufferSize += mb_strlen($d);
+        $this->firstEl    = false;
+        $this->checkBufferSize();
+    }
+
+    /**
+     * 
+     * @param type $d
+     */
+    public function rawData($d) {
+        $this->headerSend = true;
+        echo($d);
+        $this->state      = self::ENDED;
+    }
+
+    /**
+     * 
+     * @param mixed $d
+     */
+    public function data($d) {
+        $this->echoContentType();
+        echo json_encode($d, \JSON_NUMERIC_CHECK);
+        $this->state = self::ENDED;
+    }
+
+    /**
+     * 
+     */
+    private function echoContentType() {
+        $this->headerSend = true;
+        header('Content-Type: application/json; charset=utf-8');
+    }
+
+    /**
+     * 
+     */
+    private function checkBufferSize() {
+        if ($this->bufferSize > $this->bufferSizeLimit) {
+            if (!$this->headerSend) {
+                $this->echoContentType();
+            }
+            echo $this->buffer;
+            $this->buffer     = '';
+            $this->bufferSize = 0;
+        }
+    }
+
+    /**
+     * 
+     * @return int
+     */
+    private function appendComa(): int {
+        if (!$this->firstEl) {
+            $this->buffer .= ',';
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 
+     * @param string $key
+     * @return int
+     */
+    private function appendKey(string $key): int {
+        if ($key != '') {
+            $key          = sprintf('"%s":', str_replace('"', '\\"', $key));
+            $this->buffer .= $key;
+            return mb_strlen($key);
+        }
+        return 0;
+    }
+
+    /**
+     * 
+     * @param string $key
+     * @throws \RuntimeException
+     */
+    private function checkState(string $key) {
+        if ($this->state === self::ENDED) {
+            throw new \RuntimeException('no more data can be send');
+        }
+        if ($key != '' && $this->state !== self::OBJECT) {
+            throw new \RuntimeException('key allowed only within an object');
+        }
+        if ($key == '' && $this->state === self::OBJECT) {
+            throw new \RuntimeException('key is required within an object');
+        }
+    }
+
+    /**
+     * 
+     * @return int
+     * @throws \RuntimeException
+     */
+    private function getStateFromStack(): int {
+        if (count($this->stack) === 0) {
+            return $this->bufferSize > 0 || $this->headerSend ? self::ENDED : self::INVALID;
+        }
+        $last = $this->stack[count($this->stack) - 1];
+        switch ($last) {
+            case '}':
+                return self::OBJECT;
+            case ']':
+                return self::COLLECTION;
+            default:
+                throw new \RuntimeException('unknown item on the stack');
+        }
+    }
+
 }

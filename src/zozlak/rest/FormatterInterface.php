@@ -31,11 +31,44 @@ namespace zozlak\rest;
  * @author zozlak
  */
 interface FormatterInterface {
-	public function data($d);
-	public function append($d, $key = null);
-	public function initObject($key = null);
-	public function closeObject();
-	public function initCollection($key = null);
-	public function closeCollection();
-	public function end();
+
+    /**
+     * 
+     * @param mixed $d
+     */
+    public function data($d);
+
+    /**
+     * 
+     * @param mixed $d
+     * @param string $key
+     */
+    public function append($d, string $key = null);
+
+    /**
+     * 
+     * @param string $key
+     */
+    public function initObject(string $key = null);
+
+    /**
+     * 
+     */
+    public function closeObject();
+
+    /**
+     * 
+     * @param string $key
+     */
+    public function initCollection(string $key = null);
+
+    /**
+     * 
+     */
+    public function closeCollection();
+
+    /**
+     * 
+     */
+    public function end();
 }

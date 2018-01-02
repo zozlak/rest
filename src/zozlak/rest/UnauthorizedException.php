@@ -26,6 +26,9 @@
 
 namespace zozlak\rest;
 
+use RuntimeException;
+use Throwable;
+
 /**
  * Description of AnauthorizedException
  *
@@ -33,8 +36,14 @@ namespace zozlak\rest;
  */
 class UnauthorizedException extends RuntimeException {
 
-    public function __construct($message = "Unauthorized", $code = 401,
-                                $previous = null) {
+    /**
+     * 
+     * @param string $message
+     * @param int $code
+     * @param \zozlak\rest\Throwable $previous
+     */
+    public function __construct(string $message = "Unauthorized",
+                                int $code = 401, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 

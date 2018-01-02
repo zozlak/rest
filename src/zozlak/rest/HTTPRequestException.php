@@ -26,11 +26,13 @@
 
 namespace zozlak\rest;
 
+use Exception;
+
 /**
  * Description of HTTPRequestException
  *
  * @author zozlak
  */
-class HTTPRequestException extends \Exception {
+class HTTPRequestException extends Exception {
     
 }
