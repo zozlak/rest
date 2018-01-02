@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 zozlak.
+ * Copyright 2018 zozlak.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,13 @@
 namespace zozlak\rest;
 
 /**
- * Description of AnauthorizedException
+ * Description of ForbiddenException
  *
  * @author zozlak
  */
-class UnauthorizedException extends RuntimeException {
+class ForbiddenException extends RuntimeException {
 
-    public function __construct($message = "Unauthorized", $code = 401,
+    public function __construct($message = "Forbidden", $code = 403,
                                 $previous = null) {
         parent::__construct($message, $code, $previous);
     }

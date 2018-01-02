@@ -35,13 +35,30 @@ use Exception;
  */
 class HTTPController {
 
+    /**
+     *
+     * @var bool 
+     */
     static private $debug = false;
+
+    /**
+     *
+     * @var string
+     */
     static private $errorTemplate = <<<TEMPL
 <h1>ERROR %d</h1>
 <p>%s</p>
 TEMPL;
 
-    static public function HTTPCode($msg = 'Internal Server Error', $code = 500, $ex = null) {
+    /**
+     * 
+     * @param string $msg
+     * @param int $code
+     * @param \Exception $ex
+     * @throws HTTPRequestException
+     */
+    static public function HTTPCode($msg = 'Internal Server Error', $code = 500,
+                                    $ex = null) {
         $splitted = explode("\n", $msg);
         header('HTTP/1.1 ' . $code . ' ' . trim($splitted[0]));
         printf(self::$errorTemplate, $code, $msg);
@@ -52,10 +69,21 @@ TEMPL;
         throw new HTTPRequestException($msg, $code);
     }
 
+    /**
+     * 
+     * @param string $msg
+     */
     static public function unauthorized($msg = 'Unauthorized') {
         self::HTTPCode($msg, 401);
     }
 
+    /**
+     * 
+     * @param int $severity
+     * @param string $msg
+     * @param string $file
+     * @param int $line
+     */
     static public function errorHandler($severity, $msg, $file, $line) {
         $message = 'Internal Server Error';
         if (self::$debug) {
@@ -64,10 +92,18 @@ TEMPL;
         self::HTTPCode($message, 500, new Exception());
     }
 
+    /**
+     * 
+     * @param bool $v
+     */
     static public function setDebug($v) {
         self::$debug = $v ? true : false;
     }
 
+    /**
+     *
+     * @var string
+     */
     private $namespace;
 
     /**
@@ -81,13 +117,40 @@ TEMPL;
      * @var \zozlak\rest\FormatterInterface
      */
     private $formatter;
+
+    /**
+     *
+     * @var array
+     */
     private $accept = array();
 
+    /**
+     *
+     * @var string
+     */
+    private $authLogin;
+
+    /**
+     *
+     * @var string
+     */
+    private $authPswd;
+
+    /**
+     * 
+     * @param string $namespace
+     * @param \zozlak\util\Config $config
+     */
     public function __construct($namespace = '', $config = null) {
         $this->namespace = '\\' . $namespace;
-        $this->config = $config;
+        $this->config    = $config;
     }
 
+    /**
+     * 
+     * @param string $name
+     * @return mixed
+     */
     public function getConfig($name) {
         if ($this->config === null) {
             return null;
@@ -95,28 +158,75 @@ TEMPL;
         return $this->config->get($name);
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getAccept() {
         return $this->accept;
     }
 
-    public function handleRequest($path) {
+    /**
+     * 
+     * @return string
+     */
+    public function getAuthLogin() {
+        return $this->authLogin;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getAuthPswd() {
+        return $this->authPswd;
+    }
+    
+    /**
+     * 
+     * @param type $realm
+     * @param type $msg
+     */
+    public function initAuth($realm, $msg) {
+        $this->authLogin = @$_SERVER['PHP_AUTH_USER'];
+        $this->authPswd  = @$_SERVER['PHP_AUTH_PW'];
+
+        if ($this->authLogin === null) {
+            header('WWW-Authenticate: Basic realm="' . $realm . '"');
+            header('HTTP/1.0 401 Unauthorized');
+            echo $msg;
+            $this->authLogin = false;
+        }
+    }
+
+    /**
+     * 
+     * @param string $path
+     * @param string $authRealm
+     */
+    public function handleRequest($path, $authRealm = null) {
+        if (!$this->authLogin) {
+            // skip handling if authorization request was sent
+            return;
+        }
+
         $this->parseAccept();
 
         // compose class and method from the request GET path parameter
-        $path = explode('/', preg_replace('|/$|', '', $path));
-        $params = new \stdClass();
+        $path         = explode('/', preg_replace('|/$|', '', $path));
+        $params       = new \stdClass();
         $handlerClass = '';
         foreach ($path as $key => $value) {
             if ($key % 2 == 0) {
                 $handlerClass = $value;
             } else {
-                $name = $handlerClass . 'Id';
+                $name          = $handlerClass . 'Id';
                 $params->$name = $value;
             }
         }
 
         $handlerClass = $this->namespace . '\\' . mb_strtoupper(mb_substr($handlerClass, 0, 1)) . mb_substr($handlerClass, 1);
-        $handler = new $handlerClass($params, $this);
+        $handler      = new $handlerClass($params, $this);
 
         $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD')) . (count($path) % 2 === 0 ? '' : 'Collection');
         try {
@@ -133,18 +243,21 @@ TEMPL;
         }
     }
 
+    /**
+     * 
+     */
     private function parseAccept() {
         // at the moment only JSON is suported but it shows how you can add others
         $accept = trim(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT'));
         if ($accept != '') {
-            $tmp = explode(',', $accept);
+            $tmp          = explode(',', $accept);
             $this->accept = array();
             foreach ($tmp as $i) {
-                $i = explode(';', $i);
+                $i    = explode(';', $i);
                 $i[0] = trim($i[0]);
                 if (count($i) >= 2) {
                     $this->accept[$i[0]] = floatval(preg_replace('|[^.0-9]|', '', $i[1]));
-                } else{
+                } else {
                     $this->accept[$i[0]] = 1;
                 }
             }
