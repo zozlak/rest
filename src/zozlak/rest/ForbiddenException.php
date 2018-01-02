@@ -34,7 +34,7 @@ use Throwable;
  *
  * @author zozlak
  */
-class ForbiddenException extends RuntimeException {
+class ForbiddenException extends HTTPRequestException {
 
     /**
      * 

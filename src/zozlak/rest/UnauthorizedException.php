@@ -34,7 +34,7 @@ use Throwable;
  *
  * @author zozlak
  */
-class UnauthorizedException extends RuntimeException {
+class UnauthorizedException extends HTTPRequestException {
 
     /**
      * 

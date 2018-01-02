@@ -37,6 +37,10 @@ use zozlak\util\Config;
  */
 class HTTPController {
 
+    static private $validCodes = array(
+        100, 101, 110, 111, 200, 201, 202, 203, 204, 205, 206
+    );
+
     /**
      *
      * @var bool 
@@ -51,6 +55,18 @@ class HTTPController {
 <h1>ERROR %d</h1>
 <p>%s</p>
 TEMPL;
+
+    /**
+     * 
+     * @param string $base
+     * @param string $source
+     */
+    static public function parsePath(string $base,
+                                     string $source = 'REDIRECT_URL'): string {
+        $path = filter_input(INPUT_SERVER, $source);
+        $path = mb_substr($path, mb_strlen($base) + (int) (substr($base, -1) != '/'));
+        return $path;
+    }
 
     /**
      * 
@@ -214,7 +230,7 @@ TEMPL;
     public function handleRequest(string $path): HTTPController {
         $this->parseAccept();
 
-        // compose class and method from the request GET path parameter
+// compose class and method from the request GET path parameter
         $path         = explode('/', preg_replace('|/$|', '', $path));
         $params       = new \stdClass();
         $handlerClass = '';
@@ -241,6 +257,15 @@ TEMPL;
             header('WWW-Authenticate: Basic realm="' . $this->authRealm . '"');
             header('HTTP/1.0 401 Unauthorized');
             echo $this->authMessage;
+        } catch (HTTPRequestException $e) {
+            $code = $e->getCode();
+            if (in_array($code, self::$validCodes)) {
+                $splitted = explode("\n", $e->getMessage());
+                header('HTTP/1.1 ' . $code . ' ' . trim($splitted[0]));
+                printf(self::$errorTemplate, $code, $e->getMessage());
+            } else {
+                self::HTTPCode($e->getMessage(), $code, $e);
+            }
         } catch (Throwable $e) {
             $code = $e->getCode();
             $code = $code >= 400 && $code <= 418 || $code == 451 || $code >= 500 && $code <= 511 ? $code : 500;
@@ -253,7 +278,7 @@ TEMPL;
      * 
      */
     private function parseAccept() {
-        // at the moment only JSON is suported but it shows how you can add others
+// at the moment only JSON is suported but it shows how you can add others
         $accept = trim(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT'));
         if ($accept != '') {
             $tmp          = explode(',', $accept);
@@ -278,18 +303,6 @@ TEMPL;
         } else {
             $this->formatter = new JSONFormatter();
         }
-    }
-
-    /**
-     * 
-     * @param string $base
-     * @param string $source
-     */
-    static public function parsePath(string $base,
-                                     string $source = 'REDIRECT_URL'): string {
-        $path = filter_input(INPUT_SERVER, $source);
-        $path = mb_substr($path, mb_strlen($base) + (int) (substr($base, -1) != '/'));
-        return $path;
     }
 
     /**
