@@ -77,23 +77,23 @@ use \zozlak\rest\FormatterInterface;
 
 class Person extends \zozlak\rest\HTTPEndpoint {
     public function getCollectio(FormatterInterface $f){
-        $f->data('you executed a GET acction on aperson collection');
+        $f->data('you executed a GET action on a person collection');
     }
 
     public function postCollectio(FormatterInterface $f){
-        $f->data('you executed a POST acction on a person collection');
+        $f->data('you executed a POST action on a person collection');
     }
 
     public function get(FormatterInterface $f){
-        $f->data('you executed a GET acction on a person resource with id' . $this->personId);
+        $f->data('you executed a GET action on a person resource with id' . $this->personId);
     }
 
     public function put(FormatterInterface $f){
-        $f->data('you executed a PUT acction on a person resource with id' . $this->personId);
+        $f->data('you executed a PUT action on a person resource with id' . $this->personId);
     }
 
     public function delete(FormatterInterface $f){
-        $f->data('you executed a DELETE acction on a person resource with id' . $this->personId);
+        $f->data('you executed a DELETE action on a person resource with id' . $this->personId);
     }
 
 }
