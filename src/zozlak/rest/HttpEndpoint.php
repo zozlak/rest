@@ -33,7 +33,7 @@ use stdClass;
  *
  * @author zozlak
  */
-class HTTPEndpoint {
+class HttpEndpoint {
 
     /**
      *
@@ -78,14 +78,14 @@ class HTTPEndpoint {
      *
      * @var type \zozlak\rest\HTTPController
      */
-    protected $controller;
+    private $controller;
 
     /**
      * 
      * @param \stdClass $path
-     * @param \zozlak\rest\HTTPController $controller
+     * @param \zozlak\rest\HttpController $controller
      */
-    public function __construct(stdClass $path, HTTPController $controller) {
+    public function __construct(stdClass $path, HttpController $controller) {
         $this->controller = $controller;
         foreach ($path as $key => $value) {
             $this->$key = $value;
@@ -94,155 +94,164 @@ class HTTPEndpoint {
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function get(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function get(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function head(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function head(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function post(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function post(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function put(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function put(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function delete(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function delete(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function trace(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function trace(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      */
-    public function options(FormatterInterface $f) {
-        $this->optionsGeneric(array('get', 'head', 'patch', 'post', 'put', 'trace'));
+    public function options(DataFormatter $f, HeadersFormatter $h) {
+        $this->optionsGeneric(array('get', 'head', 'patch', 'post', 'put', 'trace', 'connect'));
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function connect(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function connect(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function patch(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function patch(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function getCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function getCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function postCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function postCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function putCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function putCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function deleteCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function deleteCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function traceCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function traceCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      */
-    public function optionsCollection(FormatterInterface $f) {
+    public function optionsCollection(DataFormatter $f, HeadersFormatter $h) {
         $this->optionsGeneric(array('getCollection', 'patchCollection', 'postCollection',
-            'putCollection', 'traceCollection'));
+            'putCollection', 'traceCollection', 'connectCollection'));
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function connectCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function connectCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
 
     /**
      * 
-     * @param \zozlak\rest\FormatterInterface $f
+     * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function patchCollection(FormatterInterface $f) {
-        throw new \BadMethodCallException('Method not implemented');
+    public function patchCollection(DataFormatter $f, HeadersFormatter $h) {
+        throw new HttpRequestException('Method not implemented', 501);
     }
+
+    /**
+     * 
+     * @return string
+     */
+    protected function getUrl(): string {
+        return $this->controller->getUrl();
+    }
+
 
     /**
      * 
@@ -277,6 +286,22 @@ class HTTPEndpoint {
 
     /**
      * 
+     * @return string
+     */
+    protected function getAuthUser(): string {
+        return $this->controller->getAuthUser();
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getAuthPswd(): string {
+        return $this->controller->getAuthPswd();
+    }
+
+    /**
+     * 
      * @param array $methods
      */
     private function optionsGeneric(array $methods) {
@@ -285,6 +310,9 @@ class HTTPEndpoint {
             if ($this->checkOverride($method)) {
                 $implemented[] = strtoupper(str_replace('Collection', '', $method));
             }
+        }
+        if (count($implemented) === 0) {
+            throw new HttpRequestException('Not Found', 404);
         }
         $implemented = implode(', ', $implemented);
         header('Allow: ' . $implemented);

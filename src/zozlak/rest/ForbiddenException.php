@@ -26,7 +26,6 @@
 
 namespace zozlak\rest;
 
-use RuntimeException;
 use Throwable;
 
 /**
@@ -34,7 +33,7 @@ use Throwable;
  *
  * @author zozlak
  */
-class ForbiddenException extends HTTPRequestException {
+class ForbiddenException extends HttpRequestException {
 
     /**
      * 

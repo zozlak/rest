@@ -27,12 +27,37 @@
 namespace zozlak\rest;
 
 use Exception;
+use Throwable;
 
 /**
  * Description of HTTPRequestException
  *
  * @author zozlak
  */
-class HTTPRequestException extends Exception {
-    
+class HttpRequestException extends Exception {
+
+    private $headers;
+
+    /**
+     * 
+     * @param string $message
+     * @param int $code
+     * @param Throwable $previous
+     * @param array $headers
+     */
+    public function __construct(string $message = "", int $code = 0,
+                                Throwable $previous = null,
+                                array $headers = array()) {
+        parent::__construct($message, $code, $previous);
+        $this->headers = $headers;
+    }
+
+    /**
+     * 
+     * @return array
+     */
+    public function getHeaders(): array {
+        return $this->headers;
+    }
+
 }

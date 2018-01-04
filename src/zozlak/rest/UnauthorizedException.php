@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 zozlak.
+ * Copyright 2018 zozlak.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,24 +26,21 @@
 
 namespace zozlak\rest;
 
-use RuntimeException;
-use Throwable;
-
 /**
- * Description of AnauthorizedException
+ * Description of UnauthorizedException
  *
  * @author zozlak
  */
-class UnauthorizedException extends HTTPRequestException {
+class UnauthorizedException extends HttpRequestException {
 
     /**
      * 
      * @param string $message
      * @param int $code
-     * @param \zozlak\rest\Throwable $previous
+     * @param Throwable $previous
      */
-    public function __construct(string $message = "Unauthorized",
-                                int $code = 401, Throwable $previous = null) {
+    public function __construct(string $message = "Unauthorized", int $code = 401,
+                                Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
     }
 
