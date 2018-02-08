@@ -312,6 +312,9 @@ class HttpController {
      */
     private function handleException(Throwable $ex) {
         $code = $ex->getCode();
+        if (preg_match('/^Class .* not found$/', $ex->getMessage())) {
+            $code = 404;
+        }
 
         if ($ex instanceof UnauthorizedException) {
             $this->headersFormatter->
