@@ -95,7 +95,7 @@ class JsonFormatter extends DataFormatter {
      * 
      * @param string $key
      */
-    public function initCollection(string $key = null): DataFormatter {
+    public function initCollection(string $key = ''): DataFormatter {
         $this->checkState($key);
         $size          = 1;
         $size          += $this->appendComa();
@@ -131,7 +131,7 @@ class JsonFormatter extends DataFormatter {
      * 
      * @param string $key
      */
-    public function initObject(string $key = null): DataFormatter {
+    public function initObject(string $key = ''): DataFormatter {
         $this->checkState($key);
         $size          = 1;
         $size          += $this->appendComa();
@@ -168,7 +168,7 @@ class JsonFormatter extends DataFormatter {
      * @param type $d
      * @param string $key
      */
-    public function append($d, string $key = null): DataFormatter {
+    public function append($d, string $key = ''): DataFormatter {
         $this->checkState($key);
         $size          = $this->appendComa();
         $size          += $this->appendKey($key);
