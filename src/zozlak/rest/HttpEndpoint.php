@@ -286,6 +286,15 @@ class HttpEndpoint {
 
     /**
      * 
+     * @return array
+     */
+    protected function getAccept(): array {
+        return $this->controller->getAccept();
+    }
+
+
+    /**
+     * 
      * @return string
      */
     protected function getAuthUser(): string {
