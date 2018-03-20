@@ -278,7 +278,7 @@ class HttpController {
      * @return array
      */
     private function parsePath(): array {
-        $path = filter_input(\INPUT_SERVER, $this->urlSource);
+        $path = $_SERVER[$this->urlSource];
         $skip = $this->baseUrl['path'] ?? ''; 
         $path = mb_substr($path, mb_strlen($skip));
         $path = preg_replace('|^/|', '', preg_replace('|/$|', '', $path));
