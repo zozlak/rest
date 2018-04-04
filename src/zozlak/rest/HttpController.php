@@ -46,7 +46,7 @@ class HttpController {
      * @var bool
      */
     static private $errorReported = false;
-    
+
     /**
      * 
      * @param Throwable $ex
@@ -279,7 +279,7 @@ class HttpController {
      */
     private function parsePath(): array {
         $path = $_SERVER[$this->urlSource];
-        $skip = $this->baseUrl['path'] ?? ''; 
+        $skip = $this->baseUrl['path'] ?? '';
         $path = mb_substr($path, mb_strlen($skip));
         $path = preg_replace('|^/|', '', preg_replace('|/$|', '', $path));
         return explode('/', $path);
@@ -291,21 +291,21 @@ class HttpController {
      */
     public function getUrl(): string {
         $scheme = strtolower($this->baseUrl['scheme'] ?? filter_input(\INPUT_SERVER, 'REQUEST_SCHEME'));
-        
+
         $host = $this->baseUrl['host'] ?? filter_input(\INPUT_SERVER, 'SERVER_NAME');
-        
+
         $port = $this->baseUrl['port'] ?? filter_input(\INPUT_SERVER, 'SERVER_PORT');
         if ($port == 80 && $scheme === 'http' || $port == 443 && $scheme === 'https') {
             $port = '';
         } else {
             $port = ':' . $port;
         }
-        
+
         $path = filter_input(\INPUT_SERVER, $this->urlSource);
-        
+
         return $scheme . '://' . $host . $port . $path;
     }
-    
+
     /**
      * 
      * @param Throwable $ex
@@ -323,9 +323,9 @@ class HttpController {
                 sendHeaders();
             echo $this->authMsg;
         } else {
-            $httpCode         = $code < 400 || $code >= 600 ? 500 : $code;
+            $httpCode            = $code < 400 || $code >= 600 ? 500 : $code;
             $this->headersFormatter->
-                setStatus($httpCode)->
+                setStatus($httpCode, $ex->getMessage())->
                 sendStatus();
             self::$errorReported = true;
             throw new HttpRequestException('', 0, $ex);
