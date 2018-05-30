@@ -325,7 +325,7 @@ class HttpController {
         } else {
             $httpCode            = $code < 400 || $code >= 600 ? 500 : $code;
             $this->headersFormatter->
-                setStatus($httpCode, $ex->getMessage())->
+                setStatus($httpCode, explode("\n", $ex->getMessage())[0])->
                 sendStatus();
             self::$errorReported = true;
             throw new HttpRequestException('', 0, $ex);
