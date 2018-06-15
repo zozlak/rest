@@ -253,7 +253,7 @@ class HttpController {
             if ($key % 2 == 0) {
                 $handlerClass = $value;
             } else {
-                $name          = $handlerClass . 'Id';
+                $name          = mb_strtolower(mb_substr($handlerClass, 0, 1)) . mb_substr($handlerClass, 1) . 'Id';
                 $params->$name = $value;
             }
         }
