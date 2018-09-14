@@ -24,11 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace tests;
+namespace zozlak\rest;
 
-use zozlak\rest\HttpController;
-
-class ImportExportWorkflowTest extends \PHPUnit\Framework\TestCase {
+class HttpControllerTest extends \PHPUnit\Framework\TestCase {
 
     /*
      * this test makes no sense :(
