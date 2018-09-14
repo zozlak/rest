@@ -8,7 +8,7 @@ install:
   - composer require satooshi/php-coveralls
 
 before_script:
-  - sudo apt intall -y locales
+  - sudo apt install -y locales
   - mkdir -p build/logs
 
 after_success:
