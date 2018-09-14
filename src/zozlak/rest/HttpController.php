@@ -211,8 +211,13 @@ class HttpController {
      * 
      * @return array
      */
-    public function getAccept(): array {
-        return $this->accept;
+    public function getAccept(array $allowed = []): array {
+        if (count($allowed) === 0){
+            return $this->accept;
+        }
+        foreach ($allowed as $i) {
+            
+        }
     }
 
     /**
