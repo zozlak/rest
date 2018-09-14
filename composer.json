@@ -13,7 +13,8 @@
         }
     ],
     "require": {
-        "php": ">=7.0"
+        "php": ">=7.0",
+        "zozlak/util": ">=1.5.2 <2.0.0"
     },
     "autoload": {
         "psr-4": {
