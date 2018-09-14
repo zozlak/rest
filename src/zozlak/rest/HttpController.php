@@ -373,7 +373,7 @@ class HttpController {
      */
     private function parseAccept() {
         $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
-        $format = $this->getAccept(['application/json', 'text/csv', 'text/xml', 'application/xml']);
+        $format = $this->getAccept(['application/json', 'text/csv']);
         $format = array_shift($format) ?? 'application/json';
         switch ($format) {
             case 'text/csv':
