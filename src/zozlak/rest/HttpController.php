@@ -212,12 +212,18 @@ class HttpController {
      * @return array
      */
     public function getAccept(array $allowed = []): array {
-        if (count($allowed) === 0){
+        if (count($allowed) === 0) {
             return $this->accept;
         }
-        foreach ($allowed as $i) {
-            
+        foreach ($allowed as $t) {
+            $tt = explode('/', $t);
+            foreach ($this->accept as $ac) {
+                if ($t === $ac || $tt[0] . '/*' === $ac || $ac === '*/*') {
+                    return [$t];
+                }
+            }
         }
+        return [];
     }
 
     /**
