@@ -69,7 +69,7 @@ class CsvFormatter extends DataFormatter {
         $reqLocale = locale_accept_from_http(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE'));
         if ($reqLocale) {
             $curLocale = setlocale(\LC_ALL, 0);
-            setlocale(\LC_ALL, $reqLocale);
+            setlocale(\LC_ALL, $reqLocale . '.UTF-8');
             $settings  = localeconv();
             setlocale(\LC_ALL, $curLocale);
         }
@@ -206,6 +206,7 @@ class CsvFormatter extends DataFormatter {
     }
 
     private function appendRow($d, string $key = '') {
+        $d = (array) $d;
         if ($this->countAppendRow === 0) {
             if (count($this->header) === 0) {
                 $this->setHeader(array_keys($d), true, true);
