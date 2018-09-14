@@ -372,21 +372,19 @@ class HttpController {
      * 
      */
     private function parseAccept() {
-        // at the moment only JSON is suported but it shows how you can add others
         $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
-        foreach (array_keys($this->accept) as $k) {
-            switch ($k) {
-                case 'text/csv':
-                    $this->formatter = new CsvFormatter($this->headersFormatter, $this);
-                    break 2;
-                case 'text/xml':
-                case 'application/xml':
-                    $this->formatter = new XmlFormatter($this->headersFormatter, $this);
-                    break 2;
-                default:
-                    $this->formatter = new JsonFormatter($this->headersFormatter, $this);
-                    break 2;
-            }
+        $format = $this->getAccept(['application/json', 'text/csv', 'text/xml', 'application/xml']);
+        $format = array_shift($format) ?? 'application/json';
+        switch ($format) {
+            case 'text/csv':
+                $this->formatter = new CsvFormatter($this->headersFormatter, $this);
+                break;
+            case 'text/xml':
+            case 'application/xml':
+                $this->formatter = new XmlFormatter($this->headersFormatter, $this);
+                break;
+            default:
+                $this->formatter = new JsonFormatter($this->headersFormatter, $this);
         }
     }
 
