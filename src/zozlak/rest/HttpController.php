@@ -215,15 +215,20 @@ class HttpController {
         if (count($allowed) === 0) {
             return $this->accept;
         }
+        
+        $matching = [];
         foreach ($allowed as $t) {
             $tt = explode('/', $t);
-            foreach ($this->accept as $ac) {
+            foreach ($this->accept as $n => $ac) {
                 if ($t === $ac || $tt[0] . '/*' === $ac || $ac === '*/*') {
-                    return [$t];
+                    $matching[$t] = $n;
+                    break;
                 }
             }
         }
-        return [];
+        asort($matching);
+        
+        return array_keys($matching);
     }
 
     /**
