@@ -9,6 +9,7 @@ install:
 
 before_script:
   - sudo apt install -y locales
+  - sudo locale-gen pl_PL.UTF-8
   - mkdir -p build/logs
 
 after_success:
