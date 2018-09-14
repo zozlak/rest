@@ -69,7 +69,9 @@ class CsvFormatter extends DataFormatter {
         $reqLocale = locale_accept_from_http(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE'));
         if ($reqLocale) {
             $curLocale = setlocale(\LC_ALL, 0);
-            setlocale(\LC_ALL, $reqLocale . '.UTF-8');
+            if(setlocale(\LC_ALL, $reqLocale . '.UTF-8') === false) {
+                setlocale(\LC_ALL, $reqLocale);
+            }
             $settings  = localeconv();
             setlocale(\LC_ALL, $curLocale);
         }
