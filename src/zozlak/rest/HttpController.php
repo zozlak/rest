@@ -138,6 +138,16 @@ class HttpController {
      *
      * @var array
      */
+    private $formattersMap = [
+        'default'          => '\\zozlak\\rest\\JsonFormatter',
+        'application/json' => '\\zozlak\\rest\\JsonFormatter',
+        'text/csv'         => '\\zozlak\\rest\\CsvFormatter',
+    ];
+
+    /**
+     *
+     * @var array
+     */
     private $accept = [];
 
     /**
@@ -182,8 +192,6 @@ class HttpController {
         $this->baseUrl          = parse_url($baseUrl);
         $this->urlSource        = $urlSource;
         $this->headersFormatter = new HeadersFormatter();
-
-        $this->parseAccept();
     }
 
     /**
@@ -215,7 +223,7 @@ class HttpController {
         if (count($allowed) === 0) {
             return $this->accept;
         }
-        
+
         $matching = [];
         foreach ($allowed as $t) {
             $tt = explode('/', $t);
@@ -227,7 +235,7 @@ class HttpController {
             }
         }
         asort($matching);
-        
+
         return array_keys($matching);
     }
 
@@ -268,19 +276,35 @@ class HttpController {
 
     /**
      * 
-     * @param \zozlak\rest\DataFormatter $f
+     * @param string $mime MIME type to be handled by the formatter (or 'default'
+     *   to set a default formatter)
+     * @param string $class formatter class
      * @return \zozlak\rest\HttpController
      */
-    public function setFormatter(DataFormatter $f): HttpController {
-        $this->formatter = $f;
+    public function setFormatter(string $mime, string $class): HttpController {
+        $this->formattersMap[$mime] = $class;
         return $this;
     }
 
     /**
      * 
+     * @param array $map array with MIME types to formatters mapping (MIME type
+     *   as keys, formatter class names as values; use 'default' key do denote
+     *   a default formatter)
+     * @return \zozlak\rest\HttpController
+     */
+    public function setFormatters(array $map): HttpController {
+        $this->formattersMap = $map;
+        return $this;
+    }
+    
+    /**
+     * 
      * @return bool
      */
     public function handleRequest(): bool {
+        $this->parseAccept();
+
         // compose class and method from the request GET path parameter
         $path         = $this->parsePath();
         $params       = new \stdClass();
@@ -373,19 +397,13 @@ class HttpController {
      */
     private function parseAccept() {
         $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
-        $format = $this->getAccept(['application/json', 'text/csv']);
-        $format = array_shift($format) ?? 'application/json';
-        switch ($format) {
-            case 'text/csv':
-                $this->formatter = new CsvFormatter($this->headersFormatter, $this);
-                break;
-            case 'text/xml':
-            case 'application/xml':
-                $this->formatter = new XmlFormatter($this->headersFormatter, $this);
-                break;
-            default:
-                $this->formatter = new JsonFormatter($this->headersFormatter, $this);
+        $format       = $this->getAccept(array_keys($this->formattersMap));
+        if (count($format) === 0) {
+            $class = $this->formattersMap['default'];
+        } else {
+            $class = $this->formattersMap[$format[0]];
         }
+        $this->formatter = new $class($this->headersFormatter, $this);
     }
 
     /**
