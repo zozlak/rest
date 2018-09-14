@@ -27,6 +27,7 @@
 namespace zozlak\rest;
 
 use RuntimeException;
+use zozlak\util\Config;
 
 /**
  *
@@ -61,11 +62,11 @@ abstract class DataFormatter {
     /**
      * 
      * @param \zozlak\rest\HeadersFormatter $hf
-     * @param int $bufferSize
+     * @param \zozlak\util\Config $config
      */
-    public function __construct(HeadersFormatter $hf, int $bufferSize = 10000000) {
+    public function __construct(HeadersFormatter $hf, HttpController $ctrl) {
         $this->headersFormatter = $hf;
-        $this->bufferSizeLimit  = $bufferSize;
+        $this->bufferSizeLimit  = $ctrl->getConfig('DataFormatterBufferSize') ?? 10000000;
     }
 
     /**
@@ -102,6 +103,16 @@ abstract class DataFormatter {
 
     abstract public function data($d): DataFormatter;
 
+    abstract public function initCollection(string $key): DataFormatter;
+
+    abstract public function closeCollection(): DataFormatter;
+    
+    abstract public function initObject(string $key = ''): DataFormatter;
+    
+    abstract public function closeObject(): DataFormatter;
+
+    abstract public function append($d, string $key = ''): DataFormatter;
+    
     /**
      * 
      */

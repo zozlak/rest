@@ -85,6 +85,26 @@ class HttpController {
     }
 
     /**
+     * Parses values with priorities list like the Accept or Language headers
+     * @param string $value
+     */
+    static private function parsePriorityList(string $value): array {
+        $tmp    = explode(',', trim($value));
+        $parsed = [];
+        foreach ($tmp as $i) {
+            $i    = explode(';', $i);
+            $i[0] = trim($i[0]);
+            if (count($i) >= 2) {
+                $parsed[$i[0]] = floatval(preg_replace('|[^.0-9]|', '', $i[1]));
+            } else {
+                $parsed[$i[0]] = 1;
+            }
+        }
+        arsort($parsed);
+        return array_keys($parsed);
+    }
+
+    /**
      *
      * @var string
      */
@@ -162,6 +182,8 @@ class HttpController {
         $this->baseUrl          = parse_url($baseUrl);
         $this->urlSource        = $urlSource;
         $this->headersFormatter = new HeadersFormatter();
+
+        $this->parseAccept();
     }
 
     /**
@@ -173,7 +195,7 @@ class HttpController {
         if ($this->config === null) {
             return null;
         }
-        return $this->config->get($name);
+        return $this->config->get($name, Config::NULL);
     }
 
     /**
@@ -243,8 +265,6 @@ class HttpController {
      * @return bool
      */
     public function handleRequest(): bool {
-        $this->parseAccept();
-
         // compose class and method from the request GET path parameter
         $path         = $this->parsePath();
         $params       = new \stdClass();
@@ -337,29 +357,20 @@ class HttpController {
      */
     private function parseAccept() {
         // at the moment only JSON is suported but it shows how you can add others
-        $accept = trim(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT'));
-        if ($accept != '') {
-            $tmp          = explode(',', $accept);
-            $this->accept = array();
-            foreach ($tmp as $i) {
-                $i    = explode(';', $i);
-                $i[0] = trim($i[0]);
-                if (count($i) >= 2) {
-                    $this->accept[$i[0]] = floatval(preg_replace('|[^.0-9]|', '', $i[1]));
-                } else {
-                    $this->accept[$i[0]] = 1;
-                }
+        $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
+        foreach (array_keys($this->accept) as $k) {
+            switch ($k) {
+                case 'text/csv':
+                    $this->formatter = new CsvFormatter($this->headersFormatter, $this);
+                    break 2;
+                case 'text/xml':
+                case 'application/xml':
+                    $this->formatter = new XmlFormatter($this->headersFormatter, $this);
+                    break 2;
+                default:
+                    $this->formatter = new JsonFormatter($this->headersFormatter, $this);
+                    break 2;
             }
-            arsort($this->accept);
-            foreach (array_keys($this->accept) as $k) {
-                switch ($k) {
-                    default:
-                        $this->formatter = new JsonFormatter($this->headersFormatter);
-                        break 2;
-                }
-            }
-        } else {
-            $this->formatter = new JsonFormatter();
         }
     }
 
