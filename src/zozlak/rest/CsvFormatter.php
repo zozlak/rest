@@ -29,7 +29,15 @@ namespace zozlak\rest;
 use BadMethodCallException;
 
 /**
- * Description of CsvFormatter
+ * Provides CSV output.
+ * 
+ * As CSV is a simple format doesn't support nested collections nor objects.
+ * 
+ * Calling initCollection() is optional as CSV is always a one top-level collection.
+ * 
+ * Header is generated automatically from the first row of data (but can be also
+ * set manually).
+ * 
  *
  * @author zozlak
  */

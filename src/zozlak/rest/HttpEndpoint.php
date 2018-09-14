@@ -288,8 +288,8 @@ class HttpEndpoint {
      * 
      * @return array
      */
-    protected function getAccept(): array {
-        return $this->controller->getAccept();
+    protected function getAccept(array $allowed = []): array {
+        return $this->controller->getAccept($allowed);
     }
 
 
