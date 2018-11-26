@@ -56,7 +56,12 @@ class HttpController {
     static public function reportError(Throwable $ex,
                                        int $verbosity = self::ERR_HIDE) {
         if (!headers_sent() && !self::$errorReported) {
-            header('HTTP/1.1 500 Internal Server Error');
+            $code = $ex->getCode();
+            $code = $code < 300 || $code >= 600 ? 500 : $code;
+            $msg = explode("\n", $ex->getMessage())[0];
+            $msg = empty($msg) ? 'Internal Server Error' : $msg;
+            header('HTTP/1.1 ' . $code . ' ' . $msg);
+            self::$errorReported = true;
         }
         switch ($verbosity) {
             case self::ERR_THROW:
@@ -80,7 +85,7 @@ class HttpController {
      */
     static public function errorHandler(int $severity, string $msg,
                                         string $file, int $line) {
-        $message = sprintf("%d %s %d\n%s", $severity, $file, $line, $msg);
+        $message = sprintf("Internal Server Error\n%d %s %d\n%s", $severity, $file, $line, $msg);
         throw new Exception($message, 500);
     }
 
