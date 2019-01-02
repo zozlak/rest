@@ -56,10 +56,10 @@ class HttpController {
     static public function reportError(Throwable $ex,
                                        int $verbosity = self::ERR_HIDE) {
         if (!headers_sent() && !self::$errorReported) {
-            $code = $ex->getCode();
-            $code = $code < 300 || $code >= 600 ? 500 : $code;
-            $msg = explode("\n", $ex->getMessage())[0];
-            $msg = empty($msg) ? 'Internal Server Error' : $msg;
+            $code                = $ex->getCode();
+            $code                = $code < 300 || $code >= 600 ? 500 : $code;
+            $msg                 = explode("\n", $ex->getMessage())[0];
+            $msg                 = empty($msg) ? 'Internal Server Error' : $msg;
             header('HTTP/1.1 ' . $code . ' ' . $msg);
             self::$errorReported = true;
         }
@@ -197,6 +197,8 @@ class HttpController {
         $this->baseUrl          = parse_url($baseUrl);
         $this->urlSource        = $urlSource;
         $this->headersFormatter = new HeadersFormatter();
+
+        $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
     }
 
     /**
@@ -302,7 +304,7 @@ class HttpController {
         $this->formattersMap = $map;
         return $this;
     }
-    
+
     /**
      * 
      * @return bool
@@ -401,8 +403,7 @@ class HttpController {
      * 
      */
     private function parseAccept() {
-        $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
-        $format       = $this->getAccept(array_keys($this->formattersMap));
+        $format = $this->getAccept(array_keys($this->formattersMap));
         if (count($format) === 0) {
             $class = $this->formattersMap['default'];
         } else {
