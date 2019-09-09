@@ -27,7 +27,6 @@
 namespace zozlak\rest;
 
 use RuntimeException;
-use zozlak\util\Config;
 
 /**
  *
@@ -62,7 +61,7 @@ abstract class DataFormatter {
     /**
      * 
      * @param \zozlak\rest\HeadersFormatter $hf
-     * @param \zozlak\util\Config $config
+     * @param \zozlak\rest\HttpController $ctrl
      */
     public function __construct(HeadersFormatter $hf, HttpController $ctrl) {
         $this->headersFormatter = $hf;

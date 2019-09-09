@@ -260,7 +260,7 @@ class HttpEndpoint {
      */
     protected function filterInput(string $name) {
         $method = filter_input(\INPUT_SERVER, 'REQUEST_METHOD');
-        if ($method === 'GET' && count($_GET) > 0) {
+        if (in_array($method, ['GET', 'HEAD']) && count($_GET) > 0) {
             return filter_input(\INPUT_GET, $name);
         } else if ($method === 'POST' && count($_POST) > 0) {
             return filter_input(\INPUT_POST, $name);
