@@ -38,7 +38,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
     static private $ctrl;
     static private $hf;
 
-    static public function setUpBeforeClass(): void {
+    static public function setUpBeforeClass() {
         self::$ctrl = new HttpController();
         self::$hf   = new HeadersFormatter();
     }
