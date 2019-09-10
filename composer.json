@@ -20,5 +20,8 @@
         "psr-4": {
             "zozlak\\rest\\": "src/zozlak/rest/"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7"
     }
 }
