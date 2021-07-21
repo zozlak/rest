@@ -378,7 +378,7 @@ class HttpController {
      * @param Throwable $ex
      */
     private function handleException(Throwable $ex) {
-        $code = $ex->getCode();
+        $code = (int) $ex->getCode();
         if (preg_match('/^Class .* not found$/', $ex->getMessage())) {
             $code = 404;
         }
