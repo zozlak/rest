@@ -187,6 +187,12 @@ class HttpController {
 
     /**
      * 
+     * @var array
+     */
+    private $routes = [];
+
+    /**
+     * 
      * @param string $namespace
      * @param string $baseUrl
      * @param string $urlSource
@@ -220,6 +226,15 @@ class HttpController {
     public function setConfig(Config $cfg): HttpController {
         $this->config = $cfg;
         return $this;
+    }
+
+    /**
+     * 
+     * @param array $routes associative array with keys being a request path
+     *   regex and values being classes handling them
+     */
+    public function setStaticRoutes(array $routes) {
+        $this->routes = $routes;
     }
 
     /**
@@ -328,6 +343,14 @@ class HttpController {
         $handlerClass  = $this->namespace . '\\' . mb_strtoupper(mb_substr($handlerClass, 0, 1)) . mb_substr($handlerClass, 1);
         $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD')) . (count($path) % 2 === 0 ? '' : 'Collection');
 
+        $pathStr = implode('/', $path);
+        foreach ($this->routes as $route => $class) {
+            if (preg_match($route, $pathStr)) {
+                $handlerClass = $class;
+                break;
+            }
+        }
+
         try {
             $handler = new $handlerClass($params, $this);
             $handler->$handlerMethod($this->formatter, $this->headersFormatter);
@@ -419,5 +442,4 @@ class HttpController {
         $this->authUser = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : null;
         $this->authPswd = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : null;
     }
-
 }
