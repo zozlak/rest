@@ -233,8 +233,9 @@ class HttpController {
      * @param array $routes associative array with keys being a request path
      *   regex and values being classes handling them
      */
-    public function setStaticRoutes(array $routes) {
+    public function setStaticRoutes(array $routes): HttpController {
         $this->routes = $routes;
+        return $this;
     }
 
     /**
