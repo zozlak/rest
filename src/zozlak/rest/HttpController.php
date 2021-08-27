@@ -348,6 +348,7 @@ class HttpController {
         foreach ($this->routes as $route => $class) {
             if (preg_match($route, $pathStr)) {
                 $handlerClass = $class;
+                $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD'));
                 break;
             }
         }
