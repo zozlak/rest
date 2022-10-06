@@ -28,6 +28,7 @@ namespace zozlak\rest;
 
 use Exception;
 use Throwable;
+use RuntimeException;
 use zozlak\util\Config;
 
 /**
@@ -41,11 +42,7 @@ class HttpController {
     const ERR_THROW = 1;
     const ERR_SHOW  = 2;
 
-    /**
-     *
-     * @var bool
-     */
-    static private $errorReported = false;
+    static private bool $errorReported = false;
 
     /**
      * 
@@ -54,7 +51,7 @@ class HttpController {
      * @throws Throwable
      */
     static public function reportError(Throwable $ex,
-                                       int $verbosity = self::ERR_HIDE) {
+                                       int $verbosity = self::ERR_HIDE): void {
         if (!headers_sent() && !self::$errorReported) {
             $code                = $ex->getCode();
             $code                = $code < 300 || $code >= 600 ? 500 : $code;
@@ -84,7 +81,7 @@ class HttpController {
      * @param int $line
      */
     static public function errorHandler(int $severity, string $msg,
-                                        string $file, int $line) {
+                                        string $file, int $line): void {
         $message = sprintf("Internal Server Error\n%d %s %d\n%s", $severity, $file, $line, $msg);
         throw new Exception($message, 500);
     }
@@ -92,6 +89,7 @@ class HttpController {
     /**
      * Parses values with priorities list like the Accept or Language headers
      * @param string $value
+     * @return array<string>
      */
     static private function parsePriorityList(string $value): array {
         $tmp    = explode(',', trim($value));
@@ -109,41 +107,22 @@ class HttpController {
         return array_keys($parsed);
     }
 
+    private string $namespace;
+
     /**
-     *
-     * @var string
+     * 
+     * @var array<string, mixed>
      */
-    private $namespace;
+    private array $baseUrl;
+    private string $urlSource;
+    private ?Config $config = null;
+    private DataFormatter $formatter;
 
     /**
      *
-     * @var string
+     * @var array<string, string>
      */
-    private $baseUrl;
-
-    /**
-     *
-     * @var string
-     */
-    private $urlSource;
-
-    /**
-     *
-     * @var type \zozlak\util\Config
-     */
-    private $config;
-
-    /**
-     *
-     * @var \zozlak\rest\DataFormatter
-     */
-    private $formatter;
-
-    /**
-     *
-     * @var array
-     */
-    private $formattersMap = [
+    private array $formattersMap = [
         'default'          => '\\zozlak\\rest\\JsonFormatter',
         'application/json' => '\\zozlak\\rest\\JsonFormatter',
         'text/csv'         => '\\zozlak\\rest\\CsvFormatter',
@@ -151,45 +130,20 @@ class HttpController {
 
     /**
      *
-     * @var array
+     * @var array<string>
      */
-    private $accept = [];
-
-    /**
-     *
-     * @var string
-     */
-    private $authUser;
-
-    /**
-     *
-     * @var string
-     */
-    private $authPswd;
-
-    /**
-     *
-     * @var string
-     */
-    private $authRealm = 'auth realm';
-
-    /**
-     *
-     * @var string
-     */
-    private $authMsg = 'Wrong username or password';
-
-    /**
-     *
-     * @var \zozlak\rest\HeadersFormatter
-     */
-    private $headersFormatter;
+    private array $accept    = [];
+    private ?string $authUser  = null;
+    private ?string $authPswd  = null;
+    private string $authRealm = 'auth realm';
+    private string $authMsg   = 'Wrong username or password';
+    private HeadersFormatter $headersFormatter;
 
     /**
      * 
-     * @var array
+     * @var array<string, string>
      */
-    private $routes = [];
+    private array $routes = [];
 
     /**
      * 
@@ -200,7 +154,7 @@ class HttpController {
     public function __construct(string $namespace = '', string $baseUrl = '',
                                 string $urlSource = 'REDIRECT_URL') {
         $this->namespace        = '\\' . $namespace;
-        $this->baseUrl          = parse_url($baseUrl);
+        $this->baseUrl          = parse_url($baseUrl) ?: throw new RuntimeException("Failed to parse $baseUrl as URL");
         $this->urlSource        = $urlSource;
         $this->headersFormatter = new HeadersFormatter();
 
@@ -212,7 +166,7 @@ class HttpController {
      * @param string $name
      * @return mixed
      */
-    public function getConfig(string $name) {
+    public function getConfig(string $name): mixed {
         if ($this->config === null) {
             return null;
         }
@@ -230,7 +184,7 @@ class HttpController {
 
     /**
      * 
-     * @param array $routes associative array with keys being a request path
+     * @param array<string, string> $routes associative array with keys being a request path
      *   regex and values being classes handling them
      */
     public function setStaticRoutes(array $routes): HttpController {
@@ -239,8 +193,8 @@ class HttpController {
     }
 
     /**
-     * 
-     * @return array
+     * @param array<string> $allowed
+     * @return array<string>
      */
     public function getAccept(array $allowed = []): array {
         if (count($allowed) === 0) {
@@ -282,7 +236,7 @@ class HttpController {
      */
     public function getAuthPswd(): string {
         $this->getAuthUser(); // take care of initialization
-        return $this->authPswd;
+        return (string) $this->authPswd;
     }
 
     /**
@@ -311,10 +265,10 @@ class HttpController {
 
     /**
      * 
-     * @param array $map array with MIME types to formatters mapping (MIME type
-     *   as keys, formatter class names as values; use 'default' key do denote
-     *   a default formatter)
-     * @return \zozlak\rest\HttpController
+     * @param array<string, string> $map array with MIME types to formatters 
+     *   mapping (MIME type as keys, formatter class names as values; 
+     *   use 'default' key do denote a default formatter)
+     * @return HttpController
      */
     public function setFormatters(array $map): HttpController {
         $this->formattersMap = $map;
@@ -347,7 +301,7 @@ class HttpController {
         $pathStr = implode('/', $path);
         foreach ($this->routes as $route => $class) {
             if (preg_match($route, $pathStr)) {
-                $handlerClass = $class;
+                $handlerClass  = $class;
                 $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD'));
                 break;
             }
@@ -367,13 +321,13 @@ class HttpController {
 
     /**
      * 
-     * @return array
+     * @return array<string>
      */
     private function parsePath(): array {
         $path = $_SERVER[$this->urlSource];
         $skip = $this->baseUrl['path'] ?? '';
-        $path = mb_substr($path, mb_strlen($skip));
-        $path = preg_replace('|^/|', '', preg_replace('|/$|', '', $path));
+        $path = (string) mb_substr($path, mb_strlen($skip));
+        $path = (string) preg_replace('|^/|', '', (string) preg_replace('|/$|', '', $path));
         return explode('/', $path);
     }
 
@@ -402,7 +356,7 @@ class HttpController {
      * 
      * @param Throwable $ex
      */
-    private function handleException(Throwable $ex) {
+    private function handleException(Throwable $ex): void {
         $code = (int) $ex->getCode();
         if (preg_match('/^Class .* not found$/', $ex->getMessage())) {
             $code = 404;
@@ -427,20 +381,24 @@ class HttpController {
     /**
      * 
      */
-    private function parseAccept() {
+    private function parseAccept(): void {
         $format = $this->getAccept(array_keys($this->formattersMap));
         if (count($format) === 0) {
             $class = $this->formattersMap['default'];
         } else {
             $class = $this->formattersMap[$format[0]];
         }
-        $this->formatter = new $class($this->headersFormatter, $this);
+        $formatter = new $class($this->headersFormatter, $this);
+        if (!($formatter instanceof DataFormatter)) {
+            throw new RuntimeException("Couldn't initialize an output formatter.");
+        }
+        $this->formatter = $formatter;
     }
 
     /**
      * 
      */
-    private function parseHttpBasic() {
+    private function parseHttpBasic(): void {
         $this->authUser = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : null;
         $this->authPswd = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : null;
     }

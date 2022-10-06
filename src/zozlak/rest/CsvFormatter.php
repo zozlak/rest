@@ -46,17 +46,27 @@ class CsvFormatter extends DataFormatter {
     const ROW    = 1;
     const COLUMN = 2;
 
-    private $countInitCollection = 0;
-    private $countAppendRow      = 0;
-    private $mode                = self::ROW;
-    private $header              = [];
-    private $row                 = [];
-    private $colNotNull;
-    private $buffer;
-    private $delimiter;
-    private $enclosure;
-    private $escape;
-    private $decimal;
+    private int $countInitCollection = 0;
+    private int $countAppendRow      = 0;
+    private int $mode                = self::ROW;
+
+    /**
+     * 
+     * @var array<string>
+     */
+    private array $header = [];
+
+    /**
+     * 
+     * @var array<mixed>
+     */
+    private array $row    = [];
+    private int $colNotNull;
+    private string $buffer = '';
+    private string $delimiter;
+    private string $enclosure;
+    private string $escape;
+    private string $decimal;
 
     public function __construct(HeadersFormatter $hf, HttpController $ctrl) {
         parent::__construct($hf, $ctrl);
@@ -68,14 +78,15 @@ class CsvFormatter extends DataFormatter {
         $settings  = localeconv();
         $reqLocale = locale_accept_from_http(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE'));
         if ($reqLocale) {
-            $curLocale = setlocale(\LC_ALL, 0);
-            if(setlocale(\LC_ALL, $reqLocale . '.UTF-8') === false) {
+            $curLocale = (string) setlocale(\LC_ALL, '0');
+            if (setlocale(\LC_ALL, $reqLocale . '.UTF-8') === false) {
                 setlocale(\LC_ALL, $reqLocale);
             }
-            $settings  = localeconv();
+            $settings = localeconv();
             setlocale(\LC_ALL, $curLocale);
         }
-        $this->delimiter = $settings['decimal_point'] === ',' ? ';' : ',';
+        $this->decimal   = $settings['decimal_point'];
+        $this->delimiter = $this->decimal === ',' ? ';' : ',';
 
         // settings from config.ini overwrite ones from locale settings
         if ($ctrl->getConfig('DataFormatterCsvDelimiter')) {
@@ -86,6 +97,10 @@ class CsvFormatter extends DataFormatter {
         }
     }
 
+    /**
+     * 
+     * @return array<string, string>
+     */
     protected function getHeaders(): array {
         return ['Content-Type' => 'text/csv; charset=utf-8'];
     }
@@ -96,7 +111,7 @@ class CsvFormatter extends DataFormatter {
         return 0;
     }
 
-    public function data($d): DataFormatter {
+    public function data(mixed $d): DataFormatter {
         if (is_scalar($d)) {
             $d            = (string) $d;
             $this->buffer .= $d;
@@ -116,7 +131,7 @@ class CsvFormatter extends DataFormatter {
         return $this;
     }
 
-    public function append($d, string $key = ''): DataFormatter {
+    public function append(mixed $d, string $key = ''): DataFormatter {
         if ($this->mode === self::COLUMN) {
             $this->appendColumn($d, $key);
         } else {
@@ -167,6 +182,13 @@ class CsvFormatter extends DataFormatter {
         return $this;
     }
 
+    /**
+     * 
+     * @param array<mixed> $header
+     * @param bool $sanitize
+     * @return DataFormatter
+     * @throws BadMethodCallException
+     */
     public function setHeader(array $header, bool $sanitize = false): DataFormatter {
         if ($this->countAppendRow > 0) {
             throw new BadMethodCallException('can not set header - rows already added');
@@ -186,7 +208,7 @@ class CsvFormatter extends DataFormatter {
 
     /**
      * Formats row of data as CSV
-     * @param array $row
+     * @param array<mixed> $row
      * @return string
      */
     private function asCsv(array $row): string {
@@ -197,7 +219,7 @@ class CsvFormatter extends DataFormatter {
             $i       = (string) $i;
             if (!$numeric) {
                 $i = $this->enclosure . str_replace($this->enclosure, $this->escape . $this->enclosure, $i) . $this->enclosure;
-            } else if ($this->decimal !== null) {
+            } else if (!empty($this->decimal)) {
                 $i = str_replace('.', $this->decimal, $i);
             }
             $out .= ($n > 0 ? $this->delimiter : '') . $i;
@@ -207,11 +229,17 @@ class CsvFormatter extends DataFormatter {
         return $out;
     }
 
-    private function appendRow($d, string $key = '') {
+    /**
+     * 
+     * @param mixed $d
+     * @param string $key
+     * @return void
+     */
+    private function appendRow(mixed $d, string $key = ''): void {
         $d = (array) $d;
         if ($this->countAppendRow === 0) {
             if (count($this->header) === 0) {
-                $this->setHeader(array_keys($d), true, true);
+                $this->setHeader(array_keys($d), true);
                 if ($key !== '') {
                     array_unshift($this->header, 'key');
                 }
@@ -219,11 +247,16 @@ class CsvFormatter extends DataFormatter {
             $this->appendRowReal($this->header);
         }
 
-        $this->countAppendRow ++;
+        $this->countAppendRow++;
         $this->appendRowReal($d, $key);
     }
 
-    private function appendRowReal($d, string $key = '') {
+    /**
+     * 
+     * @param mixed $d
+     * @param string $key
+     */
+    private function appendRowReal(mixed $d, string $key = ''): void {
         $d = (array) $d;
         if ($key !== '') {
             array_unshift($d, $key);
@@ -233,7 +266,7 @@ class CsvFormatter extends DataFormatter {
         $this->incBufferSize(strlen($row));
     }
 
-    private function appendColumn($d, string $key = '') {
+    private function appendColumn(mixed $d, string $key = ''): void {
         while (($this->row[$this->colNotNull] ?? null) !== null) {
             $this->colNotNull++;
         }
@@ -247,5 +280,4 @@ class CsvFormatter extends DataFormatter {
         }
         $this->row[$pos] = $d;
     }
-
 }

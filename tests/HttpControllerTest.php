@@ -27,13 +27,12 @@
 namespace zozlak\rest;
 
 class HttpControllerTest extends \PHPUnit\Framework\TestCase {
-
     /*
      * this test makes no sense :(
      */
-    public function testCreation(){
+
+    public function testCreation(): void {
         $c = new HttpController();
         $this->assertObjectHasAttribute('namespace', $c);
     }
 }
-

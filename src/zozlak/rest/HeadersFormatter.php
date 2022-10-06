@@ -35,7 +35,11 @@ use RuntimeException;
  */
 class HeadersFormatter {
 
-    static private $codes = [
+    /**
+     * 
+     * @var array<string>
+     */
+    static private array $codes = [
         '200' => 'OK',
         '201' => 'Created',
         '202' => 'Accepted',
@@ -95,24 +99,14 @@ class HeadersFormatter {
         '510' => 'Not Extended',
         '511' => 'Network Authentication Required',
     ];
+    private int $code         = 200;
+    private string $msg          = 'OK';
 
     /**
      *
-     * @var int
+     * @var array<string, array<string>>
      */
-    private $code = 200;
-
-    /**
-     *
-     * @var string
-     */
-    private $msg = 'OK';
-
-    /**
-     *
-     * @var array
-     */
-    private $headers = [];
+    private array $headers = [];
 
     public function setStatus(int $code, string $msg = ''): HeadersFormatter {
         if (!$msg && isset(self::$codes[(string) $code])) {
@@ -126,10 +120,10 @@ class HeadersFormatter {
     /**
      * 
      * @param string $header
-     * @param type $value
-     * @return \zozlak\rest\HeadersFormatter
+     * @param string|array<string> $value
+     * @return HeadersFormatter
      */
-    public function addHeader(string $header, $value): HeadersFormatter {
+    public function addHeader(string $header, string | array $value): HeadersFormatter {
         $header = $this->sanitizeHeaderName($header);
         if (!isset($this->headers[$header])) {
             $this->headers[$header] = [];
@@ -143,8 +137,8 @@ class HeadersFormatter {
 
     /**
      * 
-     * @param array $headers
-     * @return \zozlak\rest\HeadersFormatter
+     * @param array<string, string|array<string>> $headers
+     * @return HeadersFormatter
      */
     public function addHeaders(array $headers): HeadersFormatter {
         foreach ($headers as $k => $v) {
@@ -155,8 +149,8 @@ class HeadersFormatter {
 
     /**
      * 
-     * @param array $headers
-     * @return \zozlak\rest\HeadersFormatter
+     * @param array<string, string|array<string>> $headers
+     * @return HeadersFormatter
      */
     public function setHeaders(array $headers): HeadersFormatter {
         $this->headers = [];
@@ -166,7 +160,7 @@ class HeadersFormatter {
 
     /**
      * 
-     * @return \zozlak\rest\HeadersFormatter
+     * @return HeadersFormatter
      */
     public function send(bool $throwEx = false): HeadersFormatter {
         return $this->sendStatus($throwEx)->sendHeaders($throwEx);
@@ -174,7 +168,7 @@ class HeadersFormatter {
 
     /**
      * 
-     * @return \zozlak\rest\HeadersFormatter
+     * @return HeadersFormatter
      */
     public function sendStatus(bool $throwEx = false): HeadersFormatter {
         if ($this->checkHeadersSent($throwEx)) {
@@ -185,7 +179,7 @@ class HeadersFormatter {
 
     /**
      * 
-     * @return \zozlak\rest\HeadersFormatter
+     * @return HeadersFormatter
      */
     public function sendHeaders(bool $throwEx = false): HeadersFormatter {
         if ($this->checkHeadersSent($throwEx)) {
@@ -202,7 +196,7 @@ class HeadersFormatter {
      * 
      * @param string $location
      * @param int $code
-     * @return \zozlak\rest\HeaderFormatter
+     * @return HeadersFormatter
      */
     public function setRedirect(string $location, int $code = 302): HeadersFormatter {
         $this->setStatus($code);
@@ -251,5 +245,4 @@ class HeadersFormatter {
         unset($i);
         return implode('-', $name);
     }
-
 }

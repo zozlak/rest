@@ -60,13 +60,13 @@ class JsonFormatter extends DataFormatter {
 
     /**
      *
-     * @var array
+     * @var array<mixed>
      */
-    private $stack = [];
+    private array $stack = [];
 
     /**
      * 
-     * @return array
+     * @return array<string, string>
      */
     protected function getHeaders(): array {
         return ['Content-Type' => 'application/json; charset=utf-8'];
@@ -77,7 +77,7 @@ class JsonFormatter extends DataFormatter {
         $this->buffer = '';
         return 0;
     }
-    
+
     /**
      * 
      */
@@ -165,14 +165,14 @@ class JsonFormatter extends DataFormatter {
 
     /**
      * 
-     * @param type $d
+     * @param mixed $d
      * @param string $key
      */
-    public function append($d, string $key = ''): DataFormatter {
+    public function append(mixed $d, string $key = ''): DataFormatter {
         $this->checkState($key);
         $size          = $this->appendComa();
         $size          += $this->appendKey($key);
-        $d             = json_encode($d, \JSON_NUMERIC_CHECK);
+        $d             = (string) json_encode($d, \JSON_NUMERIC_CHECK);
         $this->buffer  .= $d;
         $size          += strlen($d);
         $this->firstEl = false;
@@ -184,9 +184,9 @@ class JsonFormatter extends DataFormatter {
      * 
      * @param mixed $d
      */
-    public function data($d): DataFormatter {
-        $this->buffer = json_encode($d, \JSON_NUMERIC_CHECK);
-        $this->state = self::ENDED;
+    public function data(mixed $d): DataFormatter {
+        $this->buffer = (string) json_encode($d, \JSON_NUMERIC_CHECK);
+        $this->state  = self::ENDED;
         $this->incBufferSize(strlen($this->buffer));
         return $this;
     }
@@ -222,7 +222,7 @@ class JsonFormatter extends DataFormatter {
      * @param string $key
      * @throws RuntimeException
      */
-    private function checkState(string $key) {
+    private function checkState(string $key): void {
         if ($this->state === self::ENDED) {
             throw new RuntimeException('no more data can be send');
         }
@@ -241,7 +241,7 @@ class JsonFormatter extends DataFormatter {
      */
     private function getStateFromStack(): int {
         if (count($this->stack) === 0) {
-            return $this->getBufferSize() > 0 || $this->headerSend ? self::ENDED : self::INVALID;
+            return $this->getBufferSize() > 0 || $this->headersSend ? self::ENDED : self::INVALID;
         }
         $last = $this->stack[count($this->stack) - 1];
         switch ($last) {
@@ -253,5 +253,4 @@ class JsonFormatter extends DataFormatter {
                 throw new RuntimeException('unknown item on the stack');
         }
     }
-
 }

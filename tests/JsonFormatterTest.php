@@ -33,15 +33,15 @@ namespace zozlak\rest;
  */
 class JsonFormatterTest extends \PHPUnit\Framework\TestCase {
 
-    static private $ctrl;
-    static private $hf;
+    static private HttpController $ctrl;
+    static private HeadersFormatter $hf;
 
-    static public function setUpBeforeClass() {
+    static public function setUpBeforeClass(): void {
         self::$ctrl = new HttpController();
         self::$hf   = new HeadersFormatter();        
     }
 
-    public function testCollectionAppend() {
+    public function testCollectionAppend(): void {
         $this->expectOutputString('[{"a":1,"b":["x","y"]},{"x":1,"y":2}]');
         
         $df = new JsonFormatter(self::$hf, self::$ctrl);
@@ -51,7 +51,7 @@ class JsonFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->closeCollection();
         $df->end();
     }
-    public function testData() {
+    public function testData(): void {
         $this->expectOutputString('[{"a":1,"b":["x","y"]},{"x":1,"y":2}]');
         
         $df = new JsonFormatter(self::$hf, self::$ctrl);
@@ -61,7 +61,7 @@ class JsonFormatterTest extends \PHPUnit\Framework\TestCase {
         ]);
         $df->end();
     }
-    public function testAppend() {
+    public function testAppend(): void {
         $this->expectOutputString('[{"a":1,"b":["x","y"]},{"x":1,"y":2}]');
         
         $df = new JsonFormatter(self::$hf, self::$ctrl);

@@ -27,6 +27,7 @@
 namespace zozlak\rest;
 
 use stdClass;
+use RuntimeException;
 
 /**
  * Description of Endpoint
@@ -36,10 +37,10 @@ use stdClass;
 class HttpEndpoint {
 
     /**
-     *
-     * @var \stdClass
+     * 
+     * @var array<string, mixed>
      */
-    static private $args;
+    static private ?array $args = null;
 
     /**
      * 
@@ -47,7 +48,7 @@ class HttpEndpoint {
      * @return string
      */
     static public function toUnderscore(string $name): string {
-        $parts = preg_split('/[A-Z]/', $name);
+        $parts = preg_split('/[A-Z]/', $name) ?: throw new RuntimeException('preg_split() failed');
         $n     = mb_strlen($parts[0]);
         $res   = $parts[0];
         foreach ($parts as $k => $i) {
@@ -62,9 +63,9 @@ class HttpEndpoint {
     /**
      * 
      */
-    static private function parseInput() {
+    static private function parseInput(): void {
         $type = strtolower(filter_input(\INPUT_SERVER, 'CONTENT_TYPE'));
-        $data = file_get_contents("php://input");
+        $data = (string) file_get_contents("php://input");
         switch ($type) {
             case 'application/json':
                 self::$args = (array) json_decode($data);
@@ -74,20 +75,16 @@ class HttpEndpoint {
         }
     }
 
-    /**
-     *
-     * @var type \zozlak\rest\HTTPController
-     */
-    private $controller;
+    private HttpController $controller;
 
     /**
      * 
-     * @param \stdClass $path
-     * @param \zozlak\rest\HttpController $controller
+     * @param object $path
+     * @param HttpController $controller
      */
-    public function __construct(stdClass $path, HttpController $controller) {
+    public function __construct(object $path, HttpController $controller) {
         $this->controller = $controller;
-        foreach ($path as $key => $value) {
+        foreach ((array) $path as $key => $value) {
             $this->$key = $value;
         }
     }
@@ -97,7 +94,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function get(DataFormatter $f, HeadersFormatter $h) {
+    public function get(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -106,7 +103,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function head(DataFormatter $f, HeadersFormatter $h) {
+    public function head(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -115,7 +112,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function post(DataFormatter $f, HeadersFormatter $h) {
+    public function post(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -124,7 +121,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function put(DataFormatter $f, HeadersFormatter $h) {
+    public function put(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -133,7 +130,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function delete(DataFormatter $f, HeadersFormatter $h) {
+    public function delete(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -142,7 +139,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function trace(DataFormatter $f, HeadersFormatter $h) {
+    public function trace(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -150,8 +147,9 @@ class HttpEndpoint {
      * 
      * @param \zozlak\rest\DataFormatter $f
      */
-    public function options(DataFormatter $f, HeadersFormatter $h) {
-        $this->optionsGeneric(array('get', 'head', 'patch', 'post', 'put', 'trace', 'connect'));
+    public function options(DataFormatter $f, HeadersFormatter $h): void {
+        $this->optionsGeneric(array('get', 'head', 'patch', 'post', 'put', 'trace',
+            'connect'));
     }
 
     /**
@@ -159,16 +157,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function connect(DataFormatter $f, HeadersFormatter $h) {
-        throw new HttpRequestException('Method not implemented', 501);
-    }
-
-    /**
-     * 
-     * @param \zozlak\rest\DataFormatter $f
-     * @throws \BadMethodCallException
-     */
-    public function patch(DataFormatter $f, HeadersFormatter $h) {
+    public function connect(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -177,7 +166,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function getCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function patch(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -186,7 +175,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function postCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function getCollection(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -195,7 +184,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function putCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function postCollection(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -204,7 +193,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function deleteCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function putCollection(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -213,7 +202,16 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function traceCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function deleteCollection(DataFormatter $f, HeadersFormatter $h): void {
+        throw new HttpRequestException('Method not implemented', 501);
+    }
+
+    /**
+     * 
+     * @param \zozlak\rest\DataFormatter $f
+     * @throws \BadMethodCallException
+     */
+    public function traceCollection(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -221,7 +219,7 @@ class HttpEndpoint {
      * 
      * @param \zozlak\rest\DataFormatter $f
      */
-    public function optionsCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function optionsCollection(DataFormatter $f, HeadersFormatter $h): void {
         $this->optionsGeneric(array('getCollection', 'patchCollection', 'postCollection',
             'putCollection', 'traceCollection', 'connectCollection'));
     }
@@ -231,7 +229,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function connectCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function connectCollection(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -240,7 +238,7 @@ class HttpEndpoint {
      * @param \zozlak\rest\DataFormatter $f
      * @throws \BadMethodCallException
      */
-    public function patchCollection(DataFormatter $f, HeadersFormatter $h) {
+    public function patchCollection(DataFormatter $f, HeadersFormatter $h): void {
         throw new HttpRequestException('Method not implemented', 501);
     }
 
@@ -251,7 +249,6 @@ class HttpEndpoint {
     protected function getUrl(): string {
         return $this->controller->getUrl();
     }
-
 
     /**
      * 
@@ -268,10 +265,7 @@ class HttpEndpoint {
             if (self::$args === null) {
                 self::parseInput();
             }
-            if (!array_key_exists($name, self::$args)) {
-                return null;
-            }
-            return self::$args[$name];
+            return (self::$args ?? [])[$name] ?? null;
         }
     }
 
@@ -285,13 +279,12 @@ class HttpEndpoint {
     }
 
     /**
-     * 
-     * @return array
+     * @param array<string> $allowed
+     * @return array<string>
      */
     protected function getAccept(array $allowed = []): array {
         return $this->controller->getAccept($allowed);
     }
-
 
     /**
      * 
@@ -300,7 +293,7 @@ class HttpEndpoint {
     protected function getAuthUser(): string {
         return $this->controller->getAuthUser();
     }
-    
+
     /**
      * 
      * @return string
@@ -311,9 +304,9 @@ class HttpEndpoint {
 
     /**
      * 
-     * @param array $methods
+     * @param array<string> $methods
      */
-    private function optionsGeneric(array $methods) {
+    private function optionsGeneric(array $methods): void {
         $implemented = array('OPTIONS');
         foreach ($methods as $method) {
             if ($this->checkOverride($method)) {
@@ -343,5 +336,4 @@ class HttpEndpoint {
         }
         return false;
     }
-
 }

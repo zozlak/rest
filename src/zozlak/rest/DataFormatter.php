@@ -34,34 +34,15 @@ use RuntimeException;
  */
 abstract class DataFormatter {
 
-    /**
-     *
-     * @var \zozlak\rest\HeadersFormatter
-     */
-    private $headersFormatter;
-
-    /**
-     *
-     * @var int
-     */
-    private $bufferSize = 0;
-
-    /**
-     *
-     * @var int
-     */
-    private $bufferSizeLimit;
-
-    /**
-     *
-     * @var bool
-     */
-    private $headersSend = false;
+    private HeadersFormatter $headersFormatter;
+    private int $bufferSize    = 0;
+    private int $bufferSizeLimit;
+    protected bool $headersSend = false;
 
     /**
      * 
-     * @param \zozlak\rest\HeadersFormatter $hf
-     * @param \zozlak\rest\HttpController $ctrl
+     * @param HeadersFormatter $hf
+     * @param HttpController $ctrl
      */
     public function __construct(HeadersFormatter $hf, HttpController $ctrl) {
         $this->headersFormatter = $hf;
@@ -98,20 +79,23 @@ abstract class DataFormatter {
 
     abstract protected function sendBuffer(): int;
 
+    /**
+     * @return array<string, string>
+     */
     abstract protected function getHeaders(): array;
 
-    abstract public function data($d): DataFormatter;
+    abstract public function data(mixed $d): DataFormatter;
 
-    abstract public function initCollection(string $key): DataFormatter;
+    abstract public function initCollection(string $key = ''): DataFormatter;
 
     abstract public function closeCollection(): DataFormatter;
-    
+
     abstract public function initObject(string $key = ''): DataFormatter;
-    
+
     abstract public function closeObject(): DataFormatter;
 
-    abstract public function append($d, string $key = ''): DataFormatter;
-    
+    abstract public function append(mixed $d, string $key = ''): DataFormatter;
+
     /**
      * 
      */
@@ -157,7 +141,7 @@ abstract class DataFormatter {
     public function file(string $path, string $contentType = null,
                          string $filename = null): DataFormatter {
         if (!$contentType) {
-            $contentType = mime_content_type($path);
+            $contentType = (string) mime_content_type($path);
         }
         if ($filename) {
             $this->headersFormatter->addHeader('content-disposition', 'attachment; filename="' . basename($filename) . '"');
@@ -169,5 +153,4 @@ abstract class DataFormatter {
 
         return $this;
     }
-
 }

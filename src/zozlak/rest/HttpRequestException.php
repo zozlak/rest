@@ -36,25 +36,29 @@ use Throwable;
  */
 class HttpRequestException extends Exception {
 
-    private $headers;
+    /**
+     * 
+     * @var array<mixed>
+     */
+    private array $headers;
 
     /**
      * 
      * @param string $message
      * @param int $code
      * @param Throwable $previous
-     * @param array $headers
+     * @param array<mixed> $headers
      */
     public function __construct(string $message = "", int $code = 0,
                                 Throwable $previous = null,
-                                array $headers = array()) {
+                                array $headers = []) {
         parent::__construct($message, $code, $previous);
         $this->headers = $headers;
     }
 
     /**
      * 
-     * @return array
+     * @return array<mixed>
      */
     public function getHeaders(): array {
         return $this->headers;

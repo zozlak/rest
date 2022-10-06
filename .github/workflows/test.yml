@@ -1,0 +1,22 @@
+name: phpunit
+
+on: push
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    #- uses: mxschmitt/action-tmate@v3
+    - name: composer update
+      run: |
+        composer update -o
+    - name: test
+      run: |
+        XDEBUG_MODE=coverage vendor/bin/phpunit --filter RestTest::testHttpRangeRequest
+    - name: coveralls
+      run: |
+        export COVERALLS_RUN_LOCALLY=1
+        export COVERALLS_REPO_TOKEN=${{ secrets.coverallsToken }}
+        composer require -W php-coveralls/php-coveralls
+        php vendor/bin/php-coveralls -v

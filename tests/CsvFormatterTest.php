@@ -35,15 +35,15 @@ use zozlak\util\Config;
  */
 class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
 
-    static private $ctrl;
-    static private $hf;
+    static private HttpController $ctrl;
+    static private HeadersFormatter $hf;
 
-    static public function setUpBeforeClass() {
+    static public function setUpBeforeClass(): void {
         self::$ctrl = new HttpController();
         self::$hf   = new HeadersFormatter();
     }
 
-    public function testBasic() {
+    public function testBasic(): void {
         $this->expectOutputString('"a","b"
 1.1,"x\\"y;z."
 2.1,"xyz","abc"
@@ -55,7 +55,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->end();
     }
 
-    public function testColumn() {
+    public function testColumn(): void {
         $this->expectOutputString('"a","b"
 1.1,"x\\"y;z."
 2.1,"xyz","abc"
@@ -79,7 +79,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->end();
     }
 
-    public function testDataString() {
+    public function testDataString(): void {
         $this->expectOutputString('"a","b"
 1.1,"x\\"y;z."
 ');
@@ -92,7 +92,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->end();
     }
 
-    public function testDataObject() {
+    public function testDataObject(): void {
         $this->expectOutputString('"a","b"
 1.1,"x\\"y;z."
 2.1,"xyz","abc"
@@ -106,7 +106,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->end();
     }
 
-    public function testDataAppend() {
+    public function testDataAppend(): void {
         $this->expectOutputString('x,y
 1.1,"x\\"y;z."
 2.1,"xyz","abc"
@@ -119,13 +119,13 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->end();
     }
 
-    public function testCustomLocale() {
+    public function testCustomLocale(): void {
         $this->expectOutputString('"a";"b"
 1,1;"x\\"y;z."
 2,1;"xyz";"abc"
 ');
 
-        $curLocale = setlocale(\LC_ALL, 0);
+        $curLocale = (string) setlocale(\LC_ALL, '0');
         setlocale(\LC_ALL, 'pl_PL.UTF-8');
 
         $df = new CsvFormatter(self::$hf, self::$ctrl);
@@ -136,7 +136,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         setlocale(\LC_ALL, $curLocale);
     }
 
-    public function testCustomSettings() {
+    public function testCustomSettings(): void {
         $this->expectOutputString('?a?|?b?
 1:1|?x@?y;z.?
 2:1|?xyz?|?abc?
@@ -156,44 +156,35 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase {
         $df->end();
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     * @expectedExceptionMessage CsvFormatter can handle only one collection and it must be a top-level one
-     */
-    public function testCollectionInitTwice() {
+    public function testCollectionInitTwice(): void {
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('CsvFormatter can handle only one collection and it must be a top-level one');
         $df = new CsvFormatter(self::$hf, self::$ctrl);
         $df->initCollection();
         $df->initCollection();
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     * @expectedExceptionMessage CsvFormatter does not support collection key
-     */
-    public function testCollectionInitWithKey() {
+    public function testCollectionInitWithKey(): void {
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('CsvFormatter does not support collection key');
         $df = new CsvFormatter(self::$hf, self::$ctrl);
         $df->initCollection('key');
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     * @expectedExceptionMessage CsvFormatter can handle only one collection and it must be a top-level one
-     */
-    public function testCollectionInitAfterAppend() {
+    public function testCollectionInitAfterAppend(): void {
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('CsvFormatter can handle only one collection and it must be a top-level one');
         $df = new CsvFormatter(self::$hf, self::$ctrl);
         $df->append([1]);
         $df->initCollection();
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     * @expectedExceptionMessage CsvFormatter does not handle nested objects
-     */
-    public function testCollectionInitObjectTwice() {
+    public function testCollectionInitObjectTwice(): void {
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('CsvFormatter does not handle nested objects');
         $df = new CsvFormatter(self::$hf, self::$ctrl);
         $df->initObject();
         $df->append(1, 'a');
         $df->initObject();
     }
-
 }
