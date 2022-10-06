@@ -13,7 +13,7 @@ jobs:
         composer update -o
     - name: locales
       run: |
-        apt install -y locales && locale-gen pl_PL.UTF-8
+        sudo apt install -y locales && sudo locale-gen pl_PL.UTF-8
     - name: test
       run: |
         XDEBUG_MODE=coverage vendor/bin/phpunit
