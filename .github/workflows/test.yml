@@ -13,7 +13,7 @@ jobs:
         composer update -o
     - name: test
       run: |
-        XDEBUG_MODE=coverage vendor/bin/phpunit --filter RestTest::testHttpRangeRequest
+        XDEBUG_MODE=coverage vendor/bin/phpunit
     - name: coveralls
       run: |
         export COVERALLS_RUN_LOCALLY=1
