@@ -158,7 +158,7 @@ class HttpController {
         $this->urlSource        = $urlSource;
         $this->headersFormatter = new HeadersFormatter();
 
-        $this->accept = self::parsePriorityList(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT') ?? '');
+        $this->accept = self::parsePriorityList((string) filter_input(\INPUT_SERVER, 'HTTP_ACCEPT'));
     }
 
     /**
@@ -296,13 +296,13 @@ class HttpController {
         }
 
         $handlerClass  = $this->namespace . '\\' . mb_strtoupper(mb_substr($handlerClass, 0, 1)) . mb_substr($handlerClass, 1);
-        $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD')) . (count($path) % 2 === 0 ? '' : 'Collection');
+        $handlerMethod = mb_strtolower((string) filter_input(\INPUT_SERVER, 'REQUEST_METHOD')) . (count($path) % 2 === 0 ? '' : 'Collection');
 
         $pathStr = implode('/', $path);
         foreach ($this->routes as $route => $class) {
             if (preg_match($route, $pathStr)) {
                 $handlerClass  = $class;
-                $handlerMethod = mb_strtolower(filter_input(\INPUT_SERVER, 'REQUEST_METHOD'));
+                $handlerMethod = mb_strtolower((string) filter_input(\INPUT_SERVER, 'REQUEST_METHOD'));
                 break;
             }
         }

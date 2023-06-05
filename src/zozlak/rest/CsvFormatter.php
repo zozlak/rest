@@ -76,7 +76,7 @@ class CsvFormatter extends DataFormatter {
 
         // set delimiter and decimal point based on locale settings
         $settings  = localeconv();
-        $reqLocale = locale_accept_from_http(filter_input(\INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE'));
+        $reqLocale = locale_accept_from_http((string) filter_input(\INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE'));
         if ($reqLocale) {
             $curLocale = (string) setlocale(\LC_ALL, '0');
             if (setlocale(\LC_ALL, $reqLocale . '.UTF-8') === false) {

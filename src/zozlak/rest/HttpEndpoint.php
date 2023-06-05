@@ -64,7 +64,7 @@ class HttpEndpoint {
      * 
      */
     static private function parseInput(): void {
-        $type = strtolower(filter_input(\INPUT_SERVER, 'CONTENT_TYPE'));
+        $type = strtolower((string) filter_input(\INPUT_SERVER, 'CONTENT_TYPE'));
         $data = (string) file_get_contents("php://input");
         switch ($type) {
             case 'application/json':
@@ -307,14 +307,11 @@ class HttpEndpoint {
      * @param array<string> $methods
      */
     private function optionsGeneric(array $methods): void {
-        $implemented = array('OPTIONS');
+        $implemented = ['OPTIONS'];
         foreach ($methods as $method) {
             if ($this->checkOverride($method)) {
                 $implemented[] = strtoupper(str_replace('Collection', '', $method));
             }
-        }
-        if (count($implemented) === 0) {
-            throw new HttpRequestException('Not Found', 404);
         }
         $implemented = implode(', ', $implemented);
         header('Allow: ' . $implemented);
