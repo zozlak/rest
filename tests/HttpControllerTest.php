@@ -33,6 +33,6 @@ class HttpControllerTest extends \PHPUnit\Framework\TestCase {
 
     public function testCreation(): void {
         $c = new HttpController();
-        $this->assertObjectHasAttribute('namespace', $c);
+        $this->assertObjectHasProperty('namespace', $c);
     }
 }
