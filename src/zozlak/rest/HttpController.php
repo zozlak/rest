@@ -81,7 +81,7 @@ class HttpController {
      * @param int $line
      */
     static public function errorHandler(int $severity, string $msg,
-                                        string $file, int $line): void {
+                                        string $file, int $line): bool {
         $message = sprintf("Internal Server Error\n%d %s %d\n%s", $severity, $file, $line, $msg);
         throw new Exception($message, 500);
     }
